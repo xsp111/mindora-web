@@ -1,0 +1,15 @@
+{
+	"files": [],
+	"rules": {
+		"noImplicitAny": false,
+		"erasableSyntaxOnly": false
+	},
+	"alias": {
+		"@": "./src",
+		"@components": "./src/components"
+	},
+	"references": [
+		{ "path": "./tsconfig.app.json" },
+		{ "path": "./tsconfig.node.json" }
+	]
+}

@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@source "../node_modules/streamdown/dist/*.js";
+
+input:focus {
+	outline: none;
+}
+
+::-webkit-scrollbar {
+	display: none;
+}
