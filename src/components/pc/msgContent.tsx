@@ -11,9 +11,9 @@ import { useStore } from 'zustand';
 import { ArrowDownOutlined } from '@ant-design/icons';
 import { msgStore, userStore } from '@/store';
 import { messageContext } from './rootLayout';
-import ScrollTrack from './scrollTrack';
-import DefaultButton from './defaultButton';
-import TextType from '../3party/textType';
+import ScrollTrack from '../common/scrollTrack';
+import DefaultButton from '../common/defaultButton';
+import TextType from '../common/textType';
 import XMarkdown from '@ant-design/x-markdown';
 
 export default function MsgContent() {

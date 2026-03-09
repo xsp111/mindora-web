@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
-import TextType from '@/components/3party/textType';
-import LoopCircle from '@/components/3party/loopCircle';
+import TextType from '@/components/common/textType';
+import LoopCircle from '@/components/common/loopCircle';
 import CD from '@/const/cd';
 import Exam from '@/assets/example.svg';
 

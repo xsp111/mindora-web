@@ -4,7 +4,7 @@ import navUser from '../../assets/nav-user.svg';
 import navStart from '../../assets/nav-start.svg';
 import navDoc from '../../assets/nav-doc.svg';
 import { createContext } from 'react';
-import DefaultButton from './defaultButton';
+import DefaultButton from '../common/defaultButton';
 import LoginOrSignupModal from './loginOrSignupModal';
 import { message } from 'antd';
 import type { MessageInstance } from 'antd/es/message/interface';

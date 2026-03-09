@@ -1,7 +1,7 @@
-import DefaultButton from './defaultButton';
-import DefaultModal from './defaultModal';
+import DefaultButton from '../common/defaultButton';
+import DefaultModal from '../common/defaultModal';
 import EmailIcon from '@/assets/email-login.svg';
-import CardSwap, { Card } from '../3party/cardSwapper';
+import CardSwap, { Card } from '../common/cardSwapper';
 import { Skeleton } from 'antd';
 import ProfileChild from '@/assets/profile-child.svg';
 import ProfileMan from '@/assets/profile-man.svg';
