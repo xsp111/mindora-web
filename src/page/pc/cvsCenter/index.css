@@ -1,3 +1,4 @@
+/* 给 div 模拟 placeholder */
 [data-placeholder]:empty::before {
 	content: attr(data-placeholder);
 	color: #d9d9d9;

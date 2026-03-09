@@ -1,6 +1,6 @@
 import { useStore } from 'zustand';
-import { userStore } from '../../../store';
-import foxIcon from '../../../assets/fox.svg';
+import { userStore } from '@/store';
+import foxIcon from '@/assets/fox.svg';
 
 export default function UserCenter() {
 	const { user } = useStore(userStore);

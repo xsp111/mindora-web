@@ -1,5 +1,5 @@
-import Sider from '../../../components/pc/sider';
-import MsgContent from '../../../components/pc/msgContent';
+import Sider from '@/components/pc/sider';
+import MsgContent from '@/components/pc/msgContent';
 import './index.css';
 
 export default function CvsCenter() {

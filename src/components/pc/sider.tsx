@@ -1,17 +1,17 @@
 import { useContext, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import sidebarColIcon from '../../assets/sidebarCol.svg';
-import sidebarColOpenIcon from '../../assets/sidebarColOpen.svg';
-import sidebarNewIcon from '../../assets/sidebarNew.svg';
-import sidebarHistoryIcon from '../../assets/sidebar.history.svg';
+import sidebarColIcon from '@/assets/sidebarCol.svg';
+import sidebarColOpenIcon from '@/assets/sidebarColOpen.svg';
+import sidebarNewIcon from '@/assets/sidebarNew.svg';
+import sidebarHistoryIcon from '@/assets/sidebar.history.svg';
 import { useStore } from 'zustand';
-import { msgStore, userStore } from '../../store';
+import { msgStore, userStore } from '@/store';
 import { EllipsisOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Input, Modal, Popover } from 'antd';
 import { messageContext } from './rootLayout';
-import type { ApiFetchRes } from '../../service/apiFetch';
-import type { MsgIdxList } from '../../const/msg';
+import type { ApiFetchRes } from '@/service/apiFetch';
+import type { MsgIdxList } from '@/const/msg';
 
 function SiderItem({
 	icon,
@@ -215,6 +215,9 @@ export default function Sider() {
 	const getMsgIdxList = useStore(msgStore, (state) => state.getMsgIdxList);
 
 	useEffect(() => {
+		if (!user) {
+			return;
+		}
 		getMsgIdxList();
 	}, [user]);
 
@@ -249,7 +252,10 @@ export default function Sider() {
 	}, [isCollapsed]);
 
 	return (
-		<div className='sider relative h-full p-4 rounded-r-xl bg-gray-50 flex flex-col gap-4 overflow-hidden'>
+		<div
+			className={`sider relative h-full w-[260px]
+				p-4 rounded-r-xl bg-gray-50 flex flex-col gap-4 overflow-hidden`}
+		>
 			<div
 				className='absolute z-10 w-8 h-8 top-4 right-4 flex justify-center items-center hover:cursor-pointer'
 				onClick={() => setIsCollapsed(!isCollapsed)}

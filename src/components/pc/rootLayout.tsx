@@ -69,27 +69,31 @@ export default function RootLayout() {
 		<>
 			{contextHolder}
 			<messageContext.Provider value={messageApi}>
-				<div className='h-screen'>
-					<div className='fixed left-0 top-0 w-full h-16 px-[5%] bg-white z-100 border-b border-gray-100 flex items-center justify-between text-gray-900'>
-						<Link to='/'>
-							<img src={logo} width={200} />
-						</Link>
-						<div className='flex items-center gap-8'>
-							{navsInfo.map((nav) => (
-								<NavItem key={nav.href} {...nav} />
-							))}
-							<div className='w-24 pb-0.5'>
-								{isLogin ? (
-									<NavUserArea />
-								) : (
-									<DefaultButton
-										onClick={() =>
-											setLoginOrSignupModalVisible(true)
-										}
-									>
-										登录/注册
-									</DefaultButton>
-								)}
+				<div className='h-screen min-w-[1500px]'>
+					<div className='fixed left-0 top-0 w-full h-16 px-[5%] bg-white z-100 border-b border-gray-100 text-gray-900'>
+						<div className='h-full min-w-[1500px] flex items-center justify-between'>
+							<Link to='/'>
+								<img src={logo} width={200} />
+							</Link>
+							<div className='flex items-center gap-8'>
+								{navsInfo.map((nav) => (
+									<NavItem key={nav.href} {...nav} />
+								))}
+								<div className='w-24 pb-0.5'>
+									{isLogin ? (
+										<NavUserArea />
+									) : (
+										<DefaultButton
+											onClick={() =>
+												setLoginOrSignupModalVisible(
+													true,
+												)
+											}
+										>
+											登录/注册
+										</DefaultButton>
+									)}
+								</div>
 							</div>
 						</div>
 					</div>

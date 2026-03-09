@@ -1,10 +1,10 @@
 import { useStore } from 'zustand';
-import { msgStore, userStore } from '../../store';
+import { msgStore, userStore } from '@/store';
 import { Popover } from 'antd';
 import DefaultButton from './defaultButton';
 import { useContext } from 'react';
 import { messageContext } from './rootLayout';
-import logoutIcon from '../../assets/logout.svg';
+import logoutIcon from '@/assets/logout.svg';
 
 export default function NavUserArea() {
 	const { user, logout } = useStore(userStore);

@@ -1,23 +1,20 @@
-import voiceIcon from '../../assets/voice.svg';
-import speakIcon from '../../assets/speak.svg';
-import arrowIcon from '../../assets/arrow.svg';
+import voiceIcon from '@/assets/voice.svg';
+import speakIcon from '@/assets/speak.svg';
+import arrowIcon from '@/assets/arrow.svg';
 import { useContext, useEffect, useRef, useState, type RefObject } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import copyIcon from '../../assets/copy.svg';
-import retryIcon from '../../assets/retry.svg';
+import copyIcon from '@/assets/copy.svg';
+import retryIcon from '@/assets/retry.svg';
 import { Tooltip } from 'antd';
 import { useStore } from 'zustand';
 import { ArrowDownOutlined } from '@ant-design/icons';
-import { msgStore, userStore } from '../../store';
+import { msgStore, userStore } from '@/store';
 import { messageContext } from './rootLayout';
 import ScrollTrack from './scrollTrack';
 import DefaultButton from './defaultButton';
 import TextType from '../3party/textType';
 import XMarkdown from '@ant-design/x-markdown';
-import Markdown from 'react-markdown';
-import { OverlayScrollbars } from 'overlayscrollbars';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
 export default function MsgContent() {
 	const msg = useStore(msgStore, (state) => state.msg);

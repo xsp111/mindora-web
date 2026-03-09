@@ -1,15 +1,15 @@
 import DefaultButton from './defaultButton';
 import DefaultModal from './defaultModal';
-import EmailIcon from '../../assets/email-login.svg';
+import EmailIcon from '@/assets/email-login.svg';
 import CardSwap, { Card } from '../3party/cardSwapper';
 import { Skeleton } from 'antd';
-import ProfileChild from '../../assets/profile-child.svg';
-import ProfileMan from '../../assets/profile-man.svg';
-import ProfileWoman from '../../assets/profile-woman.svg';
+import ProfileChild from '@/assets/profile-child.svg';
+import ProfileMan from '@/assets/profile-man.svg';
+import ProfileWoman from '@/assets/profile-woman.svg';
 import { useContext, useState } from 'react';
 import { useStore } from 'zustand';
-import { userStore } from '../../store';
-import type { LoginOrSignupInfo } from '../../const/user';
+import { userStore } from '@/store';
+import type { LoginOrSignupInfo } from '@/const/user';
 import { messageContext } from './rootLayout';
 import { loginValidate, signupValidate, emailLoginValidate } from '../../utils';
 
