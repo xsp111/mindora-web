@@ -2,19 +2,23 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
-export default defineConfig({
-	resolve: {
-		alias: {
-			'@': '/src',
-			'@components': '/src/components',
-		},
-	},
-	plugins: [
-		react({
-			babel: {
-				plugins: [['babel-plugin-react-compiler']],
+export default defineConfig(({ mode }) => {
+	console.log('mode', mode);
+	return {
+		resolve: {
+			alias: {
+				'@': '/src',
+				'@components': '/src/components',
+				'@app': `/src/page/${mode}`,
 			},
-		}),
-		tailwindcss(),
-	],
+		},
+		plugins: [
+			react({
+				babel: {
+					plugins: [['babel-plugin-react-compiler']],
+				},
+			}),
+			tailwindcss(),
+		],
+	};
 });

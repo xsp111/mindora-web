@@ -4,8 +4,8 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev:pc": "cross-env VITE_TARGET=pc VITE_API_URL=http://localhost:3000 vite",
-		"dev:h5": "cross-env VITE_TARGET=h5 vite",
+		"dev:pc": "vite --mode pc",
+		"dev:h5": "vite --mode h5",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
 		"preview": "vite preview"
