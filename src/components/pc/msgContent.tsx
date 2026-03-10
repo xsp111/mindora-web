@@ -31,6 +31,7 @@ export default function MsgContent() {
 	useEffect(() => {
 		const searchParam = window.location.search.split('msg=')[1];
 		const searchId = id === '0' && searchParam ? searchParam : id;
+		console.log(searchId);
 		getCurrentMsg(searchId).then((res) => {
 			if (!res.success) {
 				messageApi.error('未找到该对话');
@@ -177,6 +178,8 @@ export default function MsgContent() {
 							})}
 						</div>
 						<div className='mt-60 w-full h-1' ref={endRef}></div>
+					</div>
+					<div className='absolute top-0 h-full -right-[70px]'>
 						<ScrollTrack
 							containerRef={
 								containerRef as RefObject<HTMLDivElement>
@@ -279,7 +282,7 @@ function Input() {
 					<img src={voiceIcon} width={24} alt='' />
 				</div>
 				<div
-					className={`relative  ml-1 w-full max-h-30 overflow-auto ${
+					className={`relative ml-1 w-full max-h-30 overflow-auto ${
 						!isLogin ? 'cursor-not-allowed' : ''
 					}`}
 					ref={containerRef}
@@ -291,9 +294,6 @@ function Input() {
 						onInput={handleInputChange}
 						data-placeholder='您有什么话想倾诉嘛~'
 					></div>
-					<ScrollTrack
-						containerRef={containerRef as RefObject<HTMLDivElement>}
-					/>
 				</div>
 				<div className='absolute bottom-7 right-7 translate-x-1/2 translate-y-1/2 w-10 h-10 rounded-[20px] flex items-center justify-center hover:bg-[#D9D9D9] hover:cursor-pointer'>
 					<img src={speakIcon} width={24} alt='' />

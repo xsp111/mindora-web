@@ -29,7 +29,7 @@ export default function ScrollTrack(props: ScrollBarProps) {
 				track.style.backgroundColor = 'transparent';
 				bar.style.backgroundColor = 'transparent';
 			}
-		}, 500);
+		}, 300);
 
 		function handleScroll() {
 			if (container && track && bar) {
@@ -45,9 +45,7 @@ export default function ScrollTrack(props: ScrollBarProps) {
 				const scrollTop = container.scrollTop;
 				const factor = clientHeight / scrollHeight;
 				const scrollTrackHeight = clientHeight * factor;
-				const scrollBarTop = scrollTop;
 				const scrollTrackTop = factor * scrollTop;
-				bar.style.transform = `translateY(${scrollBarTop}px)`;
 				track.style.transform = `translateY(${scrollTrackTop}px)`;
 				track.style.height = `${scrollTrackHeight}px`;
 				debounceReset();
@@ -64,6 +62,8 @@ export default function ScrollTrack(props: ScrollBarProps) {
 			clearTimeout(timer);
 		};
 	}, [containerRef.current]);
+
+	console.log(containerRef.current?.offsetHeight);
 
 	return (
 		<>
