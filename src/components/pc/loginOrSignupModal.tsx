@@ -12,6 +12,7 @@ import { userStore } from '@/store';
 import type { LoginOrSignupInfo } from '@/const/user';
 import { messageContext } from './rootLayout';
 import { loginValidate, signupValidate, emailLoginValidate } from '../../utils';
+import DefaultForm, { DefaultInput } from '../common/defaultForm';
 
 const profileImgList = [ProfileChild, ProfileMan, ProfileWoman];
 enum ModalType {
@@ -20,40 +21,52 @@ enum ModalType {
 	EmailLogin = 3,
 }
 
-function ProfileExample() {
+function ProfileShowCase() {
 	return (
-		<CardSwap
-			cardDistance={60}
-			verticalDistance={100}
-			delay={3000}
-			pauseOnHover={false}
-		>
-			{profileImgList.map((ProfileImg, index) => (
-				<Card key={index}>
-					<div className='h-full w-full flex flex-col gap-4'>
-						<div className='w-full flex items-center gap-2'>
-							<img src={ProfileImg} width={160} />
+		<div className='relative flex-2 w-full h-full bg-[#F5F5F5] border-r border-gray-200 rounded-l-lg rounded-r-2xl overflow-hidden'>
+			<div className='absolute top-7 left-4 z-10 flex flex-col '>
+				<img src='/title.svg' width={170} />
+				<div className='ml-2 mt-4 text-[12px] text-gray-600 font-bold flex flex-col '>
+					<span>在持续的对话与互动中为</span>
+					<span>每位用户建立专属的</span>
+					<span className='mt-1 text-[#C84444] text-xl'>
+						个人心理画像
+					</span>
+				</div>
+			</div>
+			<CardSwap
+				cardDistance={60}
+				verticalDistance={100}
+				delay={3000}
+				pauseOnHover={false}
+			>
+				{profileImgList.map((ProfileImg, index) => (
+					<Card key={index}>
+						<div className='h-full w-full flex flex-col gap-4'>
+							<div className='w-full flex items-center gap-2'>
+								<img src={ProfileImg} width={160} />
+								<Skeleton />
+							</div>
+							<div className='w-full flex items-center gap-2'>
+								<Skeleton.Image />
+								<Skeleton.Node />
+								<div className='w-full ml-4 flex flex-col gap-2'>
+									<Skeleton.Input />
+									<Skeleton.Input />
+									<Skeleton.Input />
+								</div>
+								<div className='w-full ml-4 flex flex-col gap-2'>
+									<Skeleton.Avatar />
+									<Skeleton.Avatar />
+									<Skeleton.Avatar />
+								</div>
+							</div>
 							<Skeleton />
 						</div>
-						<div className='w-full flex items-center gap-2'>
-							<Skeleton.Image />
-							<Skeleton.Node />
-							<div className='w-full ml-4 flex flex-col gap-2'>
-								<Skeleton.Input />
-								<Skeleton.Input />
-								<Skeleton.Input />
-							</div>
-							<div className='w-full ml-4 flex flex-col gap-2'>
-								<Skeleton.Avatar />
-								<Skeleton.Avatar />
-								<Skeleton.Avatar />
-							</div>
-						</div>
-						<Skeleton />
-					</div>
-				</Card>
-			))}
-		</CardSwap>
+					</Card>
+				))}
+			</CardSwap>
+		</div>
 	);
 }
 
@@ -94,25 +107,25 @@ function LoginForm(props: {
 	}
 	return (
 		<div className='w-full mt-1 flex flex-col gap-4'>
-			<div className='w-full'>
-				<span className='text-gray-700 text-xs'>账号</span>
-				<input
-					name='name'
-					onChange={handleChange}
-					className='w-full h-8 border-b border-gray-500 px-2 focus:outline-none focus:border-[#C84444]'
-					placeholder='请输入账号'
-				/>
-			</div>
-			<div className='w-full'>
-				<span className='text-gray-700 text-xs'>密码</span>
-				<input
-					name='password'
-					onChange={handleChange}
-					className='w-full h-8 border-b border-gray-500 px-2 focus:outline-none focus:border-[#C84444]'
-					placeholder='请输入密码'
-					type='password'
-				/>
-			</div>
+			<DefaultForm
+				config={{
+					items: [
+						{
+							label: '账号',
+							name: 'name',
+							placeholder: '请输入账号',
+							onChange: handleChange,
+						},
+						{
+							label: '密码',
+							name: 'password',
+							type: 'password',
+							placeholder: '请输入密码',
+							onChange: handleChange,
+						},
+					],
+				}}
+			/>
 			<div className='w-full pl-1 flex justify-between items-center'>
 				<div className='flex items-center gap-1'>
 					<input
@@ -174,28 +187,25 @@ function EmailLoginForm(props: {
 			return;
 		}
 		const res = await sendVerifyEmail(email);
-		if (res.success) {
+		if (res.success && res.data) {
 			// closeModal();
-			const { verifyToken } = res.data as { verifyToken: string };
+			const { verifyToken } = res.data;
 			messageApi.success(res.msg);
 			setShowTip2OperaOnEmail(true);
 			wait4EmailVerify(verifyToken, (res) => {
 				if (res === 'success') {
-					setLoading(false);
-					setShowTip2OperaOnEmail(false);
 					messageApi.success('登录成功');
 					closeModal();
-				} else if (res === 'error') {
-					setLoading(false);
-					setShowTip2OperaOnEmail(false);
-					messageApi.error('登录失败');
-				} else if (res === 'timeout') {
-					setLoading(false);
-					setShowTip2OperaOnEmail(false);
-					messageApi.error('登录超时');
+				} else {
+					messageApi.error(
+						`登录${res === 'error' ? '失败' : '超时'}`,
+					);
 				}
+				setLoading(false);
+				setShowTip2OperaOnEmail(false);
 			});
 		} else {
+			setLoading(false);
 			messageApi.error(res.msg);
 		}
 	}
@@ -206,11 +216,10 @@ function EmailLoginForm(props: {
 				{!showTip2OperaOnEmail ? (
 					<>
 						<span className='text-gray-700 text-[14px]'>邮箱</span>
-						<input
+						<DefaultInput
 							name='name'
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
-							className='w-full mt-2 h-8 border-b border-gray-500 px-2 focus:outline-none focus:border-[#C84444]'
 							placeholder='请输入您的邮箱'
 						/>
 					</>
@@ -293,41 +302,35 @@ function SignupForm(props: {
 	}
 	return (
 		<div className='w-full mt-1 flex flex-col gap-3'>
-			<div className='w-full'>
-				<span className=' text-gray-500 font-bold text-[10px] '>
-					用户名
-				</span>
-				<input
-					name='name'
-					onChange={handleChange}
-					className='w-full h-7 px-2 border-b border-gray-500 text-xs focus:outline-none focus:border-[#C84444]'
-					placeholder='请输入用户名'
-				/>
-			</div>
-			<div className='w-full'>
-				<span className=' text-gray-500 font-bold text-[10px] '>
-					密码
-				</span>
-				<input
-					name='password'
-					onChange={handleChange}
-					className='w-full h-7 px-2 border-b border-gray-500 text-xs focus:outline-none focus:border-[#C84444]'
-					placeholder='请输入6位以上密码'
-					type='password'
-				/>
-			</div>
-			<div className='w-full'>
-				<span className=' text-gray-500 font-bold text-[10px] '>
-					确认密码
-				</span>
-				<input
-					name='confirmPassword'
-					onChange={handleChange}
-					className='w-full h-7 px-2 border-b border-gray-500 text-xs focus:outline-none focus:border-[#C84444]'
-					placeholder='请再次输入密码'
-					type='password'
-				/>
-			</div>
+			<DefaultForm
+				config={{
+					formClassName: 'gap-3',
+					labelClassName: 'text-gray-500 font-bold text-[10px]',
+					inputClassName: 'h-7 text-xs',
+					items: [
+						{
+							label: '用户名',
+							name: 'name',
+							placeholder: '请输入用户名',
+							onChange: handleChange,
+						},
+						{
+							label: '密码',
+							name: 'password',
+							placeholder: '请输入6位以上密码',
+							type: 'password',
+							onChange: handleChange,
+						},
+						{
+							label: '确认密码',
+							name: 'confirmPassword',
+							placeholder: '请再次输入密码',
+							type: 'password',
+							onChange: handleChange,
+						},
+					],
+				}}
+			/>
 			<div className='w-full flex justify-end items-center'>
 				<span
 					className='justify-self-end text-[#C84444] text-[11px] hover:text-[#ff9b9b] hover:cursor-pointer'
@@ -348,17 +351,20 @@ function SignupForm(props: {
 	);
 }
 
-export default function LoginOrSignupModal({
-	open,
-	onCancel,
-}: {
-	open: boolean;
-	onCancel: () => void;
-}) {
+export default function LoginOrSignupModal() {
+	const loginOrSignupModalVisible = useStore(
+		userStore,
+		(state) => state.loginOrSignupModalVisible,
+	);
+	const setLoginOrSignupModalVisible = useStore(
+		userStore,
+		(state) => state.setLoginOrSignupModalVisible,
+	);
 	const [modalType, setModalType] = useState(ModalType.Login);
+	const onCancel = () => setLoginOrSignupModalVisible(false);
 	return (
 		<DefaultModal
-			open={open}
+			open={loginOrSignupModalVisible}
 			onCancel={onCancel}
 			styles={{
 				container: {
@@ -377,19 +383,7 @@ export default function LoginOrSignupModal({
 			}}
 		>
 			<div className='w-full h-full flex items-center gap-4'>
-				<div className='relative flex-2 w-full h-full bg-[#F5F5F5] border-r border-gray-200 rounded-l-lg rounded-r-2xl overflow-hidden'>
-					<div className='absolute top-7 left-4 z-10 flex flex-col '>
-						<img src='/title.svg' width={170} />
-						<div className='ml-2 mt-4 text-[12px] text-gray-600 font-bold flex flex-col '>
-							<span>在持续的对话与互动中为</span>
-							<span>每位用户建立专属的</span>
-							<span className='mt-1 text-[#C84444] text-xl'>
-								个人心理画像
-							</span>
-						</div>
-					</div>
-					<ProfileExample />
-				</div>
+				<ProfileShowCase />
 				<div className='flex-1 w-full h-full bg-white rounded-r-lg px-6 py-8 flex flex-col items-center gap-4'>
 					<img src='/logo.svg' width={48} />
 					<span className='font-bold text-3xl'>
