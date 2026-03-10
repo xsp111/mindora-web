@@ -30,7 +30,7 @@ export default function HomePage() {
 							</span>
 						</div>
 						<div className='w-full flex items-center gap-8 font-bold text-lg'>
-							<Link to='/start'>
+							<Link to='/chat/0'>
 								<button className='w-[200px] h-[50px] bg-[#C84444] text-white rounded-[25px] hover:bg-[#ff9b9b] hover:cursor-pointer hover:transform hover:scale-110 transition-all duration-300'>
 									开始对话
 								</button>

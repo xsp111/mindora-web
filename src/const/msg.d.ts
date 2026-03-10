@@ -1,23 +1,33 @@
 import type { ApiFetchRes } from '../service/apiFetch';
 
-type MsgIdxList = {
-	idx: string;
-	label: string;
-}[];
-
 type Message = {
 	role: string;
 	content: string;
 	loading?: boolean;
 };
 
-type CurrentMsg = {
+type ChatApiRes<T> = ApiFetchRes<T>;
+
+type Conversation = {
+	meta: ConversationMeta;
+	content: Message[];
+};
+
+type ConversationMeta = {
 	id: string;
 	label: string;
-	msg: Message[];
 	generating?: boolean;
 };
 
-type ChatApiRes<T> = ApiFetchRes<T>;
+type ConversationIdxList = {
+	idx: ConversationMeta['id'];
+	label: ConversationMeta['label'];
+}[];
 
-export type { MsgIdxList, Message, CurrentMsg, ChatApiRes };
+export type {
+	Message,
+	ChatApiRes,
+	Conversation,
+	ConversationMeta,
+	ConversationIdxList,
+};

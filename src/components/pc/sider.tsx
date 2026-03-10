@@ -11,7 +11,9 @@ import { EllipsisOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Input, Modal, Popover } from 'antd';
 import { messageContext } from './rootLayout';
 import type { ApiFetchRes } from '@/service/apiFetch';
-import type { MsgIdxList } from '@/const/msg';
+import { NEW_CONVERSATION } from '@/store/msgStore';
+import { useNavigate } from 'react-router';
+import type { ConversationIdxList } from '@/const/msg';
 
 function SiderItem({
 	icon,
@@ -22,7 +24,7 @@ function SiderItem({
 	text: string;
 	onClick: (() => void) | undefined;
 }) {
-	const generating = useStore(msgStore, (state) => state.generating);
+	const generating = useStore(msgStore, (state) => state.meta.generating);
 
 	return (
 		<div
@@ -53,14 +55,16 @@ function SiderItem({
 function SiderSubItem({
 	id,
 	text,
-	gotoMsg,
+	gotoConversation,
 }: {
 	id: string;
 	text: string;
-	gotoMsg: (id: string) => void;
+	gotoConversation: (id: string) => void;
 }) {
-	const currentId = useStore(msgStore, (state) => state.id);
-	const generating = useStore(msgStore, (state) => state.generating);
+	const { id: currentId, generating } = useStore(
+		msgStore,
+		(state) => state.meta,
+	);
 	const isActive = currentId === id;
 	const [operaAreaVisible, setOperaAreaVisible] = useState(false);
 	const [modifyModalInfo, setModifyModalInfo] = useState<
@@ -68,24 +72,27 @@ function SiderSubItem({
 	>('unvisible');
 	const [loading, setLoading] = useState(false);
 	const messageApi = useContext(messageContext);
-	const { changeMsgLabel, deleteMsg } = useStore(msgStore);
+	const { changeConversationLabel, deleteConversation } = useStore(msgStore);
 	const [newLabel, setNewLabel] = useState(text);
+	const navigator = useNavigate();
 
 	async function handleOk() {
 		setLoading(true);
-		let res: ApiFetchRes<MsgIdxList> & { joinNew?: boolean | undefined } = {
+		let res: ApiFetchRes<ConversationIdxList> & {
+			joinNew?: boolean | undefined;
+		} = {
 			success: false,
 			msg: '',
 		};
 		switch (modifyModalInfo) {
 			case 'modify':
 				{
-					res = await changeMsgLabel(id, newLabel);
+					res = await changeConversationLabel(id, newLabel);
 				}
 				break;
 			case 'delete':
 				{
-					res = await deleteMsg(id);
+					res = await deleteConversation(id);
 				}
 				break;
 		}
@@ -97,7 +104,7 @@ function SiderSubItem({
 		}
 		setLoading(false);
 		if (joinNew) {
-			gotoMsg('0');
+			gotoConversation(NEW_CONVERSATION);
 		}
 		setModifyModalInfo('unvisible');
 	}
@@ -109,7 +116,7 @@ function SiderSubItem({
 					if (generating) {
 						return;
 					}
-					gotoMsg(id);
+					navigator(`/chat/${id}`);
 				}}
 				className={`w-full py-1 px-12 flex justify-between items-center gap-4 hover:bg-gray-200  rounded-sm ${
 					generating
@@ -210,15 +217,25 @@ function SiderSubItem({
 export default function Sider() {
 	const { user } = useStore(userStore);
 	const [isCollapsed, setIsCollapsed] = useState(false);
-	const msgIdxList = useStore(msgStore, (state) => state.msgIdxList);
-	const getCurrentMsg = useStore(msgStore, (state) => state.getCurrentMsg);
-	const getMsgIdxList = useStore(msgStore, (state) => state.getMsgIdxList);
+	const navigator = useNavigate();
+	const conversationIdxList = useStore(
+		msgStore,
+		(state) => state.conversationIdxList,
+	);
+	const getConversation = useStore(
+		msgStore,
+		(state) => state.getConversation,
+	);
+	const getConversationIdxList = useStore(
+		msgStore,
+		(state) => state.getConversationIdxList,
+	);
 
 	useEffect(() => {
 		if (!user) {
 			return;
 		}
-		getMsgIdxList();
+		getConversationIdxList();
 	}, [user]);
 
 	const SiderConfig = [
@@ -230,7 +247,7 @@ export default function Sider() {
 			icon: sidebarNewIcon,
 			text: '新的聊天',
 			onClick: () => {
-				getCurrentMsg('0');
+				navigator(`/chat/${NEW_CONVERSATION}`);
 			},
 		},
 		{
@@ -276,12 +293,12 @@ export default function Sider() {
 			))}
 			{!isCollapsed && (
 				<div className='flex-1 -mt-2 w-full overflow-auto flex flex-col gap-2'>
-					{msgIdxList.map((item) => (
+					{conversationIdxList.map((item) => (
 						<SiderSubItem
 							key={item.idx}
 							text={item.label}
 							id={item.idx}
-							gotoMsg={getCurrentMsg}
+							gotoConversation={getConversation}
 						/>
 					))}
 				</div>

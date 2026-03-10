@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, type RefObject } from 'react';
+import React, { useEffect, useRef, useState, type RefObject } from 'react';
 
 interface ScrollBarProps {
 	containerRef: RefObject<HTMLDivElement>;
@@ -9,12 +9,17 @@ export default function ScrollTrack(props: ScrollBarProps) {
 	const { containerRef, Styles } = props;
 	const scrollTrackRef = useRef<HTMLDivElement>(null);
 	const barRef = useRef<HTMLDivElement>(null);
+	const [barHeight, setBarHeight] = useState(
+		barRef.current?.clientHeight || 0,
+	);
 
 	useEffect(() => {
 		const track = scrollTrackRef.current;
 		const container = containerRef.current;
 		const bar = barRef.current;
 		let timer: number;
+
+		setBarHeight(containerRef.current?.clientHeight || 0);
 
 		function debounce(fn: () => void, delay: number) {
 			return () => {
@@ -33,15 +38,14 @@ export default function ScrollTrack(props: ScrollBarProps) {
 
 		function handleScroll() {
 			if (container && track && bar) {
-				track.style.backgroundColor = '#6a7282';
-				bar.style.backgroundColor = '#e5e7eb';
 				const clientHeight = bar.clientHeight;
 				const scrollHeight = container.scrollHeight;
-
 				if (scrollHeight <= clientHeight) {
 					track.style.height = `0px`;
 					return;
 				}
+				track.style.backgroundColor = '#6a7282';
+				bar.style.backgroundColor = '#e5e7eb';
 				const scrollTop = container.scrollTop;
 				const factor = clientHeight / scrollHeight;
 				const scrollTrackHeight = clientHeight * factor;
@@ -63,14 +67,12 @@ export default function ScrollTrack(props: ScrollBarProps) {
 		};
 	}, [containerRef.current]);
 
-	console.log(containerRef.current?.offsetHeight);
-
 	return (
 		<>
 			<div
 				className='absolute top-0 right-0 w-1 transition-colors duration-500 ease-out'
 				style={{
-					height: `${containerRef.current?.offsetHeight}px`,
+					height: `${barHeight}px`,
 				}}
 				ref={barRef}
 			>

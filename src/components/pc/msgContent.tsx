@@ -15,31 +15,17 @@ import ScrollTrack from '../common/scrollTrack';
 import DefaultButton from '../common/defaultButton';
 import TextType from '../common/textType';
 import XMarkdown from '@ant-design/x-markdown';
+import type { ConversationMeta } from '@/const/msg';
+import { useParams } from 'react-router';
 
-export default function MsgContent() {
-	const msg = useStore(msgStore, (state) => state.msg);
-	const id = useStore(msgStore, (state) => state.id);
-	const generating = useStore(msgStore, (state) => state.generating);
-	const getCurrentMsg = useStore(msgStore, (state) => state.getCurrentMsg);
-	const messageApi = useContext(messageContext);
+function useScrollToBottom(generating: ConversationMeta['generating']) {
 	const endRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const contentRef = useRef<HTMLDivElement>(null);
 	const [scrollToBottomBtnVisible, setScrollToBottomBtnVisible] =
 		useState<boolean>(false);
 
-	useEffect(() => {
-		const searchParam = window.location.search.split('msg=')[1];
-		const searchId = id === '0' && searchParam ? searchParam : id;
-		console.log(searchId);
-		getCurrentMsg(searchId).then((res) => {
-			if (!res.success) {
-				messageApi.error('未找到该对话');
-				return;
-			}
-		});
-	}, []);
-
+	// 显示滚动到底部按钮
 	useEffect(() => {
 		const el = endRef.current;
 		if (!el) return;
@@ -60,8 +46,9 @@ export default function MsgContent() {
 
 		ro.observe(el);
 		return () => ro.disconnect();
-	}, [id]);
+	}, []);
 
+	// 回答新问题时滑动到底部
 	useEffect(() => {
 		if (!contentRef.current) return;
 		if (generating && endRef.current) {
@@ -70,6 +57,54 @@ export default function MsgContent() {
 			});
 		}
 	}, [generating]);
+
+	return {
+		endRef,
+		containerRef,
+		contentRef,
+		scrollToBottomBtn: (
+			<>
+				{scrollToBottomBtnVisible && (
+					<div
+						className={`relative h-9 w-9 flex items-center justify-center rounded-[18px] bg-white shadow-xl hover:cursor-pointer ${
+							generating ? '' : 'border border-[#D9D9D9]'
+						}`}
+						onClick={() => {
+							endRef.current?.scrollIntoView({
+								behavior: 'smooth',
+							});
+						}}
+					>
+						{generating && (
+							<div className='absolute top-0 left-0 w-full h-full z-0 rounded-[18px] border-b border-[#C84444] generatingAround'></div>
+						)}
+						<ArrowDownOutlined />
+					</div>
+				)}
+			</>
+		),
+	};
+}
+
+export default function ConversationContent() {
+	const id = useStore(msgStore, (state) => state.meta.id);
+	const getConversation = useStore(
+		msgStore,
+		(state) => state.getConversation,
+	);
+
+	const { conversationId } = useParams();
+	const messageApi = useContext(messageContext);
+
+	useEffect(() => {
+		const searchId = conversationId || '0';
+		getConversation(searchId).then((res) => {
+			if (!res.success) {
+				messageApi.error(res.msg);
+				return;
+			}
+		});
+	}, [conversationId]);
 
 	return (
 		<div className='relative flex-1 h-full bg-white px-16 flex flex-col justify-center items-center gap-8'>
@@ -82,130 +117,8 @@ export default function MsgContent() {
 					<Input />
 				</>
 			) : (
-				<div className='relative flex-1 h-full w-[832px] pt-3 '>
-					<div
-						className='w-full h-full overflow-auto relative'
-						ref={containerRef}
-					>
-						<div className='w-full flex flex-col' ref={contentRef}>
-							{msg.map((msg, index) => {
-								return (
-									<div key={index}>
-										{msg.role === 'user' ? (
-											<div
-												className={`pb-10 flex justify-end`}
-												style={{
-													paddingTop:
-														index === 0 ? 0 : 48,
-												}}
-											>
-												<div className='px-4 py-1.5 bg-[#C84444] text-white rounded-[18px]'>
-													<span className='block max-w-[500px] text-[16px] leading-6'>
-														{msg.content}
-													</span>
-												</div>
-											</div>
-										) : (
-											<div className='flex flex-col'>
-												{msg.loading ? (
-													<div className='w-full h-80'>
-														<div className='w-10 h-10 flex items-center justify-center'>
-															<div className='breathPoint'></div>
-														</div>
-													</div>
-												) : (
-													<>
-														<XMarkdown
-															content={
-																msg.content
-															}
-														/>
-														{!generating && (
-															<div className='py-2 flex gap-4'>
-																<Tooltip
-																	placement='bottom'
-																	arrow={
-																		false
-																	}
-																	title={
-																		<span className='text-xs text-white'>
-																			复制
-																		</span>
-																	}
-																>
-																	<img
-																		className='hover:cursor-pointer'
-																		src={
-																			copyIcon
-																		}
-																		width={
-																			16
-																		}
-																		alt=''
-																	/>
-																</Tooltip>
-																<Tooltip
-																	arrow={
-																		false
-																	}
-																	placement='bottom'
-																	title={
-																		<span className='text-xs text-white'>
-																			重试
-																		</span>
-																	}
-																	className='hover:cursor-pointer'
-																>
-																	<img
-																		className='hover:cursor-pointer'
-																		src={
-																			retryIcon
-																		}
-																		width={
-																			12
-																		}
-																		alt=''
-																	/>
-																</Tooltip>
-															</div>
-														)}
-													</>
-												)}
-											</div>
-										)}
-									</div>
-								);
-							})}
-						</div>
-						<div className='mt-60 w-full h-1' ref={endRef}></div>
-					</div>
-					<div className='absolute top-0 h-full -right-[70px]'>
-						<ScrollTrack
-							containerRef={
-								containerRef as RefObject<HTMLDivElement>
-							}
-						/>
-					</div>
-					<div className='absolute z-10 bottom-8 left-0 w-full flex flex-col items-center gap-4'>
-						{scrollToBottomBtnVisible && (
-							<div
-								className={`relative h-9 w-9 flex items-center justify-center rounded-[18px] bg-white shadow-xl hover:cursor-pointer ${
-									generating ? '' : 'border border-[#D9D9D9]'
-								}`}
-								onClick={() => {
-									endRef.current?.scrollIntoView({
-										behavior: 'smooth',
-									});
-								}}
-							>
-								{generating && (
-									<div className='absolute top-0 left-0 w-full h-full z-0 rounded-[18px] border-b border-[#C84444] generatingAround'></div>
-								)}
-								<ArrowDownOutlined />
-							</div>
-						)}
-						<Input />
-					</div>
+				<div className='relative flex-1 h-full w-[832px] pt-3'>
+					<Content />
 				</div>
 			)}
 		</div>
@@ -213,11 +126,14 @@ export default function MsgContent() {
 }
 
 function Input() {
-	const id = useStore(msgStore, (state) => state.id);
-	const generating = useStore(msgStore, (state) => state.generating);
+	const id = useStore(msgStore, (state) => state.meta.id);
+	const generating = useStore(msgStore, (state) => state.meta.generating);
 	const isLogin = useStore(userStore, (state) => state.isLogin);
 	const sendMsg = useStore(msgStore, (state) => state.sendMsg);
-	const createMsg = useStore(msgStore, (state) => state.createMsg);
+	const createConversation = useStore(
+		msgStore,
+		(state) => state.createConversation,
+	);
 	const [input, setInput] = useState<string>('');
 	const inputRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -252,7 +168,7 @@ function Input() {
 			inputRef.current.innerText = '';
 		}
 		if (id === '0') {
-			const { success, msg } = await createMsg();
+			const { success, msg } = await createConversation();
 			if (!success) {
 				messageApi.error(msg);
 				return;
@@ -307,5 +223,106 @@ function Input() {
 				<img src={arrowIcon} width={64} alt='' />
 			</DefaultButton>
 		</div>
+	);
+}
+
+function Content() {
+	const generating = useStore(msgStore, (state) => state.meta.generating);
+	const { endRef, containerRef, contentRef, scrollToBottomBtn } =
+		useScrollToBottom(generating);
+	const content = useStore(msgStore, (state) => state.content);
+	return (
+		<>
+			<div
+				className='w-full h-full overflow-auto relative'
+				ref={containerRef}
+			>
+				<div className='w-full flex flex-col' ref={contentRef}>
+					{content.map((msg, index) => {
+						return (
+							<div key={index}>
+								{msg.role === 'user' ? (
+									<div
+										className={`pb-10 flex justify-end`}
+										style={{
+											paddingTop: index === 0 ? 0 : 48,
+										}}
+									>
+										<div className='px-4 py-1.5 bg-[#C84444] text-white rounded-[18px]'>
+											<span className='block max-w-[500px] text-[16px] leading-6'>
+												{msg.content}
+											</span>
+										</div>
+									</div>
+								) : (
+									<div className='flex flex-col'>
+										{msg.loading ? (
+											<div className='w-full h-80'>
+												<div className='w-10 h-10 flex items-center justify-center'>
+													<div className='breathPoint'></div>
+												</div>
+											</div>
+										) : (
+											<>
+												<XMarkdown
+													content={msg.content}
+												/>
+												{!generating && (
+													<div className='py-2 flex gap-4'>
+														<Tooltip
+															placement='bottom'
+															arrow={false}
+															title={
+																<span className='text-xs text-white'>
+																	复制
+																</span>
+															}
+														>
+															<img
+																className='hover:cursor-pointer'
+																src={copyIcon}
+																width={16}
+																alt=''
+															/>
+														</Tooltip>
+														<Tooltip
+															arrow={false}
+															placement='bottom'
+															title={
+																<span className='text-xs text-white'>
+																	重试
+																</span>
+															}
+															className='hover:cursor-pointer'
+														>
+															<img
+																className='hover:cursor-pointer'
+																src={retryIcon}
+																width={12}
+																alt=''
+															/>
+														</Tooltip>
+													</div>
+												)}
+											</>
+										)}
+									</div>
+								)}
+							</div>
+						);
+					})}
+				</div>
+				<div className='mt-60 w-full h-1' ref={endRef}></div>
+			</div>
+			<div className='absolute top-0 h-full -right-[70px]'>
+				<ScrollTrack
+					containerRef={containerRef as RefObject<HTMLDivElement>}
+				/>
+			</div>
+			<div className='absolute z-10 bottom-8 left-0 w-full flex flex-col items-center gap-4'>
+				{scrollToBottomBtn}
+				<Input />
+			</div>
+		</>
 	);
 }

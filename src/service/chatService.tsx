@@ -1,8 +1,12 @@
-import type { ChatApiRes, CurrentMsg, MsgIdxList } from '../const/msg';
+import type {
+	ChatApiRes,
+	Conversation,
+	ConversationIdxList,
+} from '../const/msg';
 import apiFetch from './apiFetch';
 import authController from './auth';
 
-async function chat(msg: CurrentMsg) {
+async function chat(msg: Conversation) {
 	return apiFetch('/auth/chat', {
 		method: 'POST',
 		body: msg,
@@ -14,7 +18,7 @@ async function chat(msg: CurrentMsg) {
 }
 
 async function createChat() {
-	return apiFetch<ChatApiRes<CurrentMsg>>('/auth/chat/createChat', {
+	return apiFetch<ChatApiRes<Conversation>>('/auth/chat/createChat', {
 		method: 'POST',
 		customHeaders: {
 			Authorization: `Bearer ${authController.accessToken}`,
@@ -22,7 +26,7 @@ async function createChat() {
 	});
 }
 
-async function deleteMsg(id: string) {
+async function deleteConversation(id: string) {
 	return apiFetch<ChatApiRes<null>>('/auth/chat/delete', {
 		method: 'POST',
 		body: { id },
@@ -32,7 +36,7 @@ async function deleteMsg(id: string) {
 	});
 }
 
-async function changeMsgLabel(id: string, label: string) {
+async function changeConversationLabel(id: string, label: string) {
 	return apiFetch<ChatApiRes<null>>('/auth/chat/newLabel', {
 		method: 'POST',
 		body: { id, label },
@@ -42,8 +46,8 @@ async function changeMsgLabel(id: string, label: string) {
 	});
 }
 
-async function get(id: string) {
-	return authController.afterAuthReady<ChatApiRes<CurrentMsg>>(
+async function getConversation(id: string) {
+	return authController.afterAuthReady<ChatApiRes<Conversation>>(
 		apiFetch,
 		'/auth/chat/get',
 		{
@@ -53,8 +57,8 @@ async function get(id: string) {
 	);
 }
 
-async function getMsgList() {
-	return authController.afterAuthReady<ChatApiRes<MsgIdxList>>(
+async function getConversationList() {
+	return authController.afterAuthReady<ChatApiRes<ConversationIdxList>>(
 		apiFetch,
 		'/auth/chat/list',
 		{
@@ -63,4 +67,11 @@ async function getMsgList() {
 	);
 }
 
-export { chat, createChat, get, getMsgList, deleteMsg, changeMsgLabel };
+export {
+	chat,
+	createChat,
+	getConversation,
+	getConversationList,
+	deleteConversation,
+	changeConversationLabel,
+};

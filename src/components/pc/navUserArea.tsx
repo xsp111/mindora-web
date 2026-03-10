@@ -5,17 +5,18 @@ import DefaultButton from '../common/defaultButton';
 import { useContext } from 'react';
 import { messageContext } from './rootLayout';
 import logoutIcon from '@/assets/logout.svg';
+import { NEW_CONVERSATION } from '@/store/msgStore';
 
 export default function NavUserArea() {
 	const { user, logout } = useStore(userStore);
-	const { getCurrentMsg, setMsgIdxList } = useStore(msgStore);
+	const { getConversation, setConversationIdxList } = useStore(msgStore);
 	const messageApi = useContext(messageContext);
 	async function handleLogout() {
 		const res = await logout();
 		if (res.success) {
 			messageApi.success(res.msg);
-			getCurrentMsg('0');
-			setMsgIdxList([]);
+			getConversation(NEW_CONVERSATION);
+			setConversationIdxList([]);
 		} else {
 			messageApi.error(res.msg);
 		}

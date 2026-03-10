@@ -1,45 +1,60 @@
 import { create } from 'zustand';
-import type { CurrentMsg, Message, MsgIdxList } from '../const/msg';
+
 import type { ApiFetchRes } from '../service/apiFetch';
 import { chatService } from '../service';
+import type {
+	Conversation,
+	ConversationIdxList,
+	ConversationMeta,
+	Message,
+} from '@/const/msg';
 
-interface msgState {
-	msgIdxList: MsgIdxList;
-	id: CurrentMsg['id'];
-	label: CurrentMsg['label'];
-	msg: CurrentMsg['msg'];
-	generating: CurrentMsg['generating'];
-	setMsgIdxList: (msgIdxList: MsgIdxList) => void;
-	getMsgIdxList: () => Promise<ApiFetchRes<MsgIdxList>>;
-	getCurrentMsg: (idx: string) => Promise<ApiFetchRes<CurrentMsg>>;
-	deleteMsg: (
-		id: string,
-	) => Promise<ApiFetchRes<MsgIdxList> & { joinNew?: boolean | undefined }>;
-	changeMsgLabel: (
-		id: string,
-		label: string,
-	) => Promise<ApiFetchRes<MsgIdxList>>;
-	createMsg: () => Promise<ApiFetchRes<string>>;
-	sendMsg: (newMsg: Message) => Promise<ApiFetchRes<CurrentMsg>>;
+interface ConversationStore {
+	conversationIdxList: ConversationIdxList;
+	// new schema
+	meta: ConversationMeta;
+	content: Message[];
+	// methods
+	setConversationIdxList: (conversationIdxList: ConversationIdxList) => void;
+	getConversationIdxList: () => Promise<ApiFetchRes<ConversationIdxList>>;
+	getConversation: (
+		searchConversationId: ConversationMeta['id'],
+	) => Promise<ApiFetchRes<Conversation>>;
+	deleteConversation: (
+		id: ConversationMeta['id'],
+	) => Promise<
+		ApiFetchRes<ConversationIdxList> & { joinNew?: boolean | undefined }
+	>;
+	changeConversationLabel: (
+		id: ConversationMeta['id'],
+		label: ConversationMeta['label'],
+	) => Promise<ApiFetchRes<ConversationIdxList>>;
+	createConversation: () => Promise<ApiFetchRes<string>>;
+	sendMsg: (newMsg: Message) => Promise<ApiFetchRes<Conversation>>;
 }
 
-const msgStore = create<msgState>((_set, _get) => ({
-	msgIdxList: [],
-	id: '0',
-	label: '',
-	msg: [],
-	generating: false,
-	setMsgIdxList: (msgIdxList: MsgIdxList) => {
+export const NEW_CONVERSATION = '0';
+
+const msgStore = create<ConversationStore>((_set, _get) => ({
+	conversationIdxList: [],
+	// new schema
+	meta: {
+		id: NEW_CONVERSATION,
+		label: '',
+		generating: false,
+	},
+	content: [],
+	setConversationIdxList: (conversationIdxList: ConversationIdxList) => {
 		_set({
-			msgIdxList: msgIdxList || [],
+			conversationIdxList: conversationIdxList || [],
 		});
 	},
-	getMsgIdxList: async () => {
+	getConversationIdxList: async () => {
 		const {
 			success,
 			msg,
-			data: msgIdxList,
-		} = await chatService.getMsgList();
+			data: conversationIdxList,
+		} = await chatService.getConversationList();
 		if (!success) {
 			return {
 				success: false,
@@ -47,21 +62,25 @@ const msgStore = create<msgState>((_set, _get) => ({
 			};
 		}
 		_set({
-			msgIdxList: msgIdxList || [],
+			conversationIdxList: conversationIdxList || [],
 		});
 		return {
 			success,
 			msg,
 		};
 	},
-	getCurrentMsg: async (idx: string) => {
-		const { id } = _get();
-		history.pushState({}, '', `/start?msg=${idx}`);
-		if (idx === '0') {
+	getConversation: async (searchConversationId: string) => {
+		const {
+			meta: { id: currentConversationId },
+		} = _get();
+		if (searchConversationId === NEW_CONVERSATION) {
 			_set({
-				id: idx,
-				label: '',
-				msg: [],
+				meta: {
+					id: searchConversationId,
+					label: '',
+					generating: false,
+				},
+				content: [],
 			});
 			return {
 				success: true,
@@ -69,14 +88,19 @@ const msgStore = create<msgState>((_set, _get) => ({
 			};
 		}
 		// 新建会话场景下， 服务端尚未创建好会话
-		if (id === idx) {
+		if (currentConversationId === searchConversationId) {
 			return {
 				success: true,
 				msg: '',
 			};
 		}
-		const { success, msg, data: resMsg } = await chatService.get(idx);
+		const {
+			success,
+			msg,
+			data: resMsg,
+		} = await chatService.getConversation(searchConversationId);
 		if (!success) {
+			console.error(msg);
 			return {
 				success: false,
 				msg: '未找到该对话',
@@ -90,34 +114,45 @@ const msgStore = create<msgState>((_set, _get) => ({
 			msg: '',
 		};
 	},
-	deleteMsg: async (deleteId: string) => {
-		const { success, msg } = await chatService.deleteMsg(deleteId);
+	deleteConversation: async (deleteId: ConversationMeta['id']) => {
+		const { success, msg } = await chatService.deleteConversation(deleteId);
 		if (!success) {
 			return {
 				success: false,
 				msg: msg,
 			};
 		}
-		const { id, msgIdxList } = _get();
-		const newMsgIdxList = msgIdxList.filter(
+		const {
+			meta: { id },
+			conversationIdxList,
+		} = _get();
+		const newMsgIdxList = conversationIdxList.filter(
 			(item) => item.idx !== deleteId,
 		);
-		_set({ msgIdxList: newMsgIdxList });
+		_set({
+			conversationIdxList: newMsgIdxList,
+		});
 		return {
 			success: true,
 			msg: '删除成功',
 			joinNew: id === deleteId,
 		};
 	},
-	changeMsgLabel: async (id: string, label: string) => {
-		const { success, msg } = await chatService.changeMsgLabel(id, label);
+	changeConversationLabel: async (
+		id: ConversationMeta['id'],
+		label: ConversationMeta['label'],
+	) => {
+		const { success, msg } = await chatService.changeConversationLabel(
+			id,
+			label,
+		);
 		if (!success) {
 			return {
 				success: false,
 				msg: msg,
 			};
 		}
-		const msgIdxList = _get().msgIdxList.map((item) => {
+		const conversationIdxList = _get().conversationIdxList.map((item) => {
 			if (item.idx === id) {
 				return {
 					...item,
@@ -126,28 +161,38 @@ const msgStore = create<msgState>((_set, _get) => ({
 			}
 			return item;
 		});
-		_set({ msgIdxList });
+		_set({ conversationIdxList });
 		return {
 			success: true,
 			msg: '修改成功',
 		};
 	},
-	createMsg: async () => {
-		const { success, msg, data: newMsg } = await chatService.createChat();
+	createConversation: async () => {
+		const {
+			success,
+			msg,
+			data: newConversation,
+		} = await chatService.createChat();
 		if (!success) {
 			return {
 				success: false,
 				msg: msg,
 			};
 		}
-		history.pushState({}, '', `/start?msg=${newMsg?.id}`);
+		// 新会话修改 url
+		history.pushState({}, '', `/chat/${newConversation?.meta?.id}`);
 		_set({
-			...newMsg,
-			msgIdxList: [
-				..._get().msgIdxList,
+			meta: {
+				id: newConversation?.meta?.id || '',
+				label: newConversation?.meta?.label || '',
+				generating: false,
+			},
+			content: [],
+			conversationIdxList: [
+				..._get().conversationIdxList,
 				{
-					idx: newMsg?.id || '',
-					label: newMsg?.label || '',
+					idx: newConversation?.meta?.id || '',
+					label: newConversation?.meta?.label || '',
 				},
 			],
 		});
@@ -157,27 +202,18 @@ const msgStore = create<msgState>((_set, _get) => ({
 		};
 	},
 	sendMsg: async (newMsg: Message) => {
-		const { id, label, msg } = _get();
-		_set({
-			generating: true,
-		});
-		const preMsg = {
-			id,
-			label,
-			msg: [
-				...msg,
-				newMsg,
-				{
-					role: 'assistant',
-					content: '',
-					loading: true,
-				},
-			],
+		const { meta, content } = _get();
+		const preConversation = {
+			meta: {
+				...meta,
+				generating: true,
+			},
+			content: [...content, newMsg],
 		};
 		_set({
-			...preMsg,
+			...preConversation,
 		});
-		const reader = await chatService.chat(preMsg);
+		const reader = await chatService.chat(preConversation);
 		let answerContent = '';
 		while (true) {
 			const { done, value } = await (
@@ -194,11 +230,17 @@ const msgStore = create<msgState>((_set, _get) => ({
 			};
 
 			_set({
-				msg: [...preMsg.msg.filter((item) => !item.loading), agentMsg],
+				content: [
+					...preConversation.content.filter((item) => !item.loading),
+					agentMsg,
+				],
 			});
 		}
 		_set({
-			generating: false,
+			meta: {
+				..._get().meta,
+				generating: false,
+			},
 		});
 		return {
 			success: true,

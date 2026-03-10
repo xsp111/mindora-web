@@ -21,7 +21,7 @@ const navsInfo = [
 	{
 		icon: navStart,
 		text: '开始对话',
-		href: '/start',
+		href: '/chat/0',
 	},
 	{
 		icon: navUser,
@@ -43,7 +43,8 @@ function NavItem({
 	text: string;
 	href: string;
 }) {
-	const isActive = useLocation().pathname === href;
+	const isActive =
+		href.split('/')[1] === useLocation().pathname.split('/')[1];
 
 	return (
 		<Link to={href}>
@@ -62,8 +63,7 @@ function NavItem({
 }
 
 export default function RootLayout() {
-	const { isLogin, loginOrSignupModalVisible, setLoginOrSignupModalVisible } =
-		useStore(userStore);
+	const { isLogin, setLoginOrSignupModalVisible } = useStore(userStore);
 	const [messageApi, contextHolder] = message.useMessage();
 	return (
 		<>
@@ -101,10 +101,7 @@ export default function RootLayout() {
 						<Outlet />
 					</div>
 				</div>
-				<LoginOrSignupModal
-					open={loginOrSignupModalVisible}
-					onCancel={() => setLoginOrSignupModalVisible(false)}
-				/>
+				<LoginOrSignupModal />
 			</messageContext.Provider>
 		</>
 	);

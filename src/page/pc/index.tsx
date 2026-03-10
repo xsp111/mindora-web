@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router';
 import HomePage from './home';
-import RootLayout from '../../components/pc/rootLayout';
+import RootLayout from '@/components/pc/rootLayout';
 import CvsCenter from './cvsCenter';
 import UserCenter from './userCenter';
-import { userStore } from '../../store';
+import { userStore } from '@/store';
 import { useStore } from 'zustand';
 import { useEffect } from 'react';
 import gsap from 'gsap';
@@ -22,8 +22,9 @@ export default function PcApp() {
 		<Routes>
 			<Route element={<RootLayout />}>
 				<Route index element={<HomePage />} />
-				<Route path='/start' element={<CvsCenter />} />
+				<Route path='/chat/:conversationId' element={<CvsCenter />} />
 				<Route path='/user' element={<UserCenter />} />
+				<Route path='*' element={<div>404 Not Found</div>} />
 			</Route>
 		</Routes>
 	);

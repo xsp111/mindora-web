@@ -1,9 +1,14 @@
 import { useStore } from 'zustand';
 import { userStore } from '@/store';
 import foxIcon from '@/assets/fox.svg';
+import useCheckLoginState from '@/hooks/useCheckLoginState';
 
 export default function UserCenter() {
 	const { user } = useStore(userStore);
+	const { fallback } = useCheckLoginState();
+	if (fallback) {
+		return fallback;
+	}
 	return (
 		<div className='w-full h-full px-[5%] flex bg-[#fcfcfc]'>
 			<div className=' flex-2 w-full h-full border-r border-gray-300 p-5 flex flex-col'>
