@@ -1,11 +1,11 @@
-import type { ApiFetch } from './apiFetch';
+import type apiFetch from './apiFetch';
 import { login } from './userService';
 
 type AuthController = {
 	auth: Promise<any>;
 	accessToken: string | undefined;
 	afterAuthReady: <T>(
-		cb: ApiFetch<T>,
+		cb: typeof apiFetch<T>,
 		...args: Parameters<typeof cb>
 	) => ReturnType<typeof cb>;
 };
@@ -21,9 +21,13 @@ const authController: AuthController = {
 	}),
 	afterAuthReady: (callback, ...args) => {
 		return authController.auth.then(() => {
-			// @ts-ignore
-			return callback(...args, {
-				Authorization: `Bearer ${authController.accessToken}`,
+			const { customHeaders, ...rest } = args[1];
+			return callback(args[0], {
+				...rest,
+				customHeaders: {
+					...customHeaders,
+					Authorization: `Bearer ${authController.accessToken}`,
+				},
 			});
 		});
 	},

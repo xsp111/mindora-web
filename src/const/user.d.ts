@@ -14,7 +14,7 @@ type LoginOrSignupInfo = {
 	confirmPassword?: string;
 };
 
-type UserApiRes = ApiFetchRes<User>;
+type UserApiRes<T = {}> = ApiFetchRes<User & T>;
 
 type EditUserInfo = {
 	name?: string;

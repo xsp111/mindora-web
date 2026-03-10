@@ -1,32 +1,43 @@
 export default async function apiFetch<T>(
 	endpoint: string,
-	method: string = 'GET',
-	body?: Record<string, string | boolean | Object>,
-	customHeaders?: Record<string, string>,
-	stream?: boolean,
-): Promise<T | ReadableStreamDefaultReader | undefined> {
-	const res = await fetch(apiPrefix + endpoint, {
-		method,
-		headers: {
-			'Content-Type': 'application/json',
-			...customHeaders,
-		},
-		credentials: 'include',
-		body: JSON.stringify(body),
-	});
-	if (stream && res.body) {
-		return res.body.getReader();
+	options: apiFetchOptions<false>,
+): Promise<T extends ApiFetchRes<infer U> ? ApiFetchRes<U> : T>;
+export default async function apiFetch(
+	endpoint: string,
+	options: apiFetchOptions<true>,
+): Promise<ReadableStreamDefaultReader<Uint8Array>>;
+export default async function apiFetch(
+	endpoint: string,
+	options: apiFetchOptions<boolean>,
+) {
+	const { method = 'GET', body, customHeaders, stream } = options;
+	try {
+		const res = await fetch(apiPrefix + endpoint, {
+			method,
+			headers: {
+				'Content-Type': 'application/json',
+				...customHeaders,
+			},
+			credentials: 'include',
+			body: body ? JSON.stringify(body) : undefined,
+		});
+		if (stream && res.body) {
+			return res.body.getReader();
+		}
+		return await res.json();
+	} catch (error) {
+		console.error(error);
+		return {
+			success: false,
+			msg: '请求失败，请检查网络',
+		};
 	}
-	return res.json();
 }
 
 export type ApiFetch<T> = (
 	endpoint: string,
-	method?: string,
-	body?: Record<string, string | boolean | Object>,
-	customHeaders?: Record<string, string>,
-	stream?: boolean,
-) => Promise<T | ReadableStreamDefaultReader | undefined>;
+	options: apiFetchOptions<boolean>,
+) => Promise<T | ReadableStreamDefaultReader | ApiFetchFailRes>;
 
 export type ApiFetchRes<T> = {
 	success: boolean;
@@ -34,4 +45,13 @@ export type ApiFetchRes<T> = {
 	data?: T;
 };
 
-export const apiPrefix = import.meta.env.VITE_API_URL + '/api';
+export type ApiFetchFailRes = ApiFetchRes<{}>;
+
+export const apiPrefix = `${import.meta.env.DEV ? 'http://localhost:3000' : ''}/api`;
+
+type apiFetchOptions<S> = {
+	method?: string;
+	body?: Record<string, string | boolean | Object>;
+	customHeaders?: Record<string, string>;
+	stream?: S;
+};
