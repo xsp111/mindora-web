@@ -1,3 +1,5 @@
+import { hash } from '@/utils';
+
 export default async function apiFetch<T>(
 	endpoint: string,
 	options: apiFetchOptions<false>,
@@ -11,6 +13,12 @@ export default async function apiFetch(
 	options: apiFetchOptions<boolean>,
 ) {
 	const { method = 'GET', body, customHeaders, stream } = options;
+	if (body) {
+		const { password } = body || {};
+		if (password) {
+			body.password = await hash(password as string);
+		}
+	}
 	try {
 		const res = await fetch(apiPrefix + endpoint, {
 			method,
