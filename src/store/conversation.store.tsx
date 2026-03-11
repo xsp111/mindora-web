@@ -208,7 +208,15 @@ const conversationStore = create<ConversationStore>((_set, _get) => ({
 				...meta,
 				generating: true,
 			},
-			content: [...content, newMsg],
+			content: [
+				...content,
+				newMsg,
+				{
+					role: 'assistant',
+					content: '',
+					loading: true,
+				},
+			],
 		};
 		_set({
 			...preConversation,
