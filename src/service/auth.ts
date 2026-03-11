@@ -1,8 +1,10 @@
+import type { UserApiRes } from '@/const/user';
 import type apiFetch from './apiFetch';
-import { login } from './userService';
+import { login } from './user.service';
 
 type AuthController = {
-	auth: Promise<any>;
+	auth: Promise<UserApiRes>;
+	isLogin: boolean;
 	accessToken: string | undefined;
 	afterAuthReady: <T>(
 		cb: typeof apiFetch<T>,
@@ -12,10 +14,12 @@ type AuthController = {
 
 const authController: AuthController = {
 	accessToken: undefined,
+	isLogin: false,
 	auth: new Promise((resolve) => {
 		login({}).then((res) => {
-			const { data } = res;
+			const { success, data } = res;
 			authController.accessToken = data?.accessToken;
+			if (success) authController.isLogin = true;
 			resolve(res);
 		});
 	}),

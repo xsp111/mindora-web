@@ -1,2 +1,2 @@
-export * as userService from './userService';
-export * as chatService from './chatService';
+export * as userService from './user.service';
+export * as chatService from './chat.service';

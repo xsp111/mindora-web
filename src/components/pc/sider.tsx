@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import sidebarColIcon from '@/assets/sidebarCol.svg';
@@ -6,14 +6,14 @@ import sidebarColOpenIcon from '@/assets/sidebarColOpen.svg';
 import sidebarNewIcon from '@/assets/sidebarNew.svg';
 import sidebarHistoryIcon from '@/assets/sidebar.history.svg';
 import { useStore } from 'zustand';
-import { msgStore, userStore } from '@/store';
+import { conversationStore, userStore } from '@/store';
 import { EllipsisOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Input, Modal, Popover } from 'antd';
-import { messageContext } from './rootLayout';
 import type { ApiFetchRes } from '@/service/apiFetch';
-import { NEW_CONVERSATION } from '@/store/msgStore';
+import { NEW_CONVERSATION } from '@/store/conversation.store';
 import { useNavigate } from 'react-router';
 import type { ConversationIdxList } from '@/const/msg';
+import useSingleMessageApiCall from '@/hooks/useSingleMessageApiCall';
 
 function SiderItem({
 	icon,
@@ -24,7 +24,10 @@ function SiderItem({
 	text: string;
 	onClick: (() => void) | undefined;
 }) {
-	const generating = useStore(msgStore, (state) => state.meta.generating);
+	const generating = useStore(
+		conversationStore,
+		(state) => state.meta.generating,
+	);
 
 	return (
 		<div
@@ -62,7 +65,7 @@ function SiderSubItem({
 	gotoConversation: (id: string) => void;
 }) {
 	const { id: currentId, generating } = useStore(
-		msgStore,
+		conversationStore,
 		(state) => state.meta,
 	);
 	const isActive = currentId === id;
@@ -71,8 +74,9 @@ function SiderSubItem({
 		'unvisible' | 'modify' | 'delete'
 	>('unvisible');
 	const [loading, setLoading] = useState(false);
-	const messageApi = useContext(messageContext);
-	const { changeConversationLabel, deleteConversation } = useStore(msgStore);
+	const messageApi = useSingleMessageApiCall();
+	const { changeConversationLabel, deleteConversation } =
+		useStore(conversationStore);
 	const [newLabel, setNewLabel] = useState(text);
 	const navigator = useNavigate();
 
@@ -219,15 +223,15 @@ export default function Sider() {
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const navigator = useNavigate();
 	const conversationIdxList = useStore(
-		msgStore,
+		conversationStore,
 		(state) => state.conversationIdxList,
 	);
 	const getConversation = useStore(
-		msgStore,
+		conversationStore,
 		(state) => state.getConversation,
 	);
 	const getConversationIdxList = useStore(
-		msgStore,
+		conversationStore,
 		(state) => state.getConversationIdxList,
 	);
 

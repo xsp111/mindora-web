@@ -1,7 +1,7 @@
 import voiceIcon from '@/assets/voice.svg';
 import speakIcon from '@/assets/speak.svg';
 import arrowIcon from '@/assets/arrow.svg';
-import { useContext, useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import copyIcon from '@/assets/copy.svg';
@@ -9,14 +9,14 @@ import retryIcon from '@/assets/retry.svg';
 import { Tooltip } from 'antd';
 import { useStore } from 'zustand';
 import { ArrowDownOutlined } from '@ant-design/icons';
-import { msgStore, userStore } from '@/store';
-import { messageContext } from './rootLayout';
+import { conversationStore, userStore } from '@/store';
 import ScrollTrack from '../common/scrollTrack';
 import DefaultButton from '../common/defaultButton';
 import TextType from '../common/textType';
 import XMarkdown from '@ant-design/x-markdown';
 import type { ConversationMeta } from '@/const/msg';
 import { useParams } from 'react-router';
+import useSingleMessageApiCall from '@/hooks/useSingleMessageApiCall';
 
 function useScrollToBottom(generating: ConversationMeta['generating']) {
 	const endRef = useRef<HTMLDivElement>(null);
@@ -87,14 +87,14 @@ function useScrollToBottom(generating: ConversationMeta['generating']) {
 }
 
 export default function ConversationContent() {
-	const id = useStore(msgStore, (state) => state.meta.id);
+	const id = useStore(conversationStore, (state) => state.meta.id);
 	const getConversation = useStore(
-		msgStore,
+		conversationStore,
 		(state) => state.getConversation,
 	);
 
 	const { conversationId } = useParams();
-	const messageApi = useContext(messageContext);
+	const messageApi = useSingleMessageApiCall();
 
 	useEffect(() => {
 		const searchId = conversationId || '0';
@@ -126,18 +126,21 @@ export default function ConversationContent() {
 }
 
 function Input() {
-	const id = useStore(msgStore, (state) => state.meta.id);
-	const generating = useStore(msgStore, (state) => state.meta.generating);
+	const id = useStore(conversationStore, (state) => state.meta.id);
+	const generating = useStore(
+		conversationStore,
+		(state) => state.meta.generating,
+	);
 	const isLogin = useStore(userStore, (state) => state.isLogin);
-	const sendMsg = useStore(msgStore, (state) => state.sendMsg);
+	const sendMsg = useStore(conversationStore, (state) => state.sendMsg);
 	const createConversation = useStore(
-		msgStore,
+		conversationStore,
 		(state) => state.createConversation,
 	);
 	const [input, setInput] = useState<string>('');
 	const inputRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const messageApi = useContext(messageContext);
+	const messageApi = useSingleMessageApiCall();
 
 	useEffect(() => {
 		function handleBlur(e: FocusEvent) {
@@ -227,10 +230,13 @@ function Input() {
 }
 
 function Content() {
-	const generating = useStore(msgStore, (state) => state.meta.generating);
+	const generating = useStore(
+		conversationStore,
+		(state) => state.meta.generating,
+	);
 	const { endRef, containerRef, contentRef, scrollToBottomBtn } =
 		useScrollToBottom(generating);
-	const content = useStore(msgStore, (state) => state.content);
+	const content = useStore(conversationStore, (state) => state.content);
 	return (
 		<>
 			<div

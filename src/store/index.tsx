@@ -1,2 +1,2 @@
-export { userStore } from './userStore';
-export { msgStore } from './msgStore';
+export { userStore } from './user.store';
+export { conversationStore } from './conversation.store';

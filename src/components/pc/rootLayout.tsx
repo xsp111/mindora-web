@@ -1,15 +1,15 @@
 import { Link, Outlet, useLocation } from 'react-router';
-import logo from '../../assets/logo-with-title.svg';
-import navUser from '../../assets/nav-user.svg';
-import navStart from '../../assets/nav-start.svg';
-import navDoc from '../../assets/nav-doc.svg';
+import logo from '@/assets/logo-with-title.svg';
+import navUser from '@/assets/nav-user.svg';
+import navStart from '@/assets/nav-start.svg';
+import navDoc from '@/assets/nav-doc.svg';
 import { createContext } from 'react';
 import DefaultButton from '../common/defaultButton';
 import LoginOrSignupModal from './loginOrSignupModal';
 import { message } from 'antd';
 import type { MessageInstance } from 'antd/es/message/interface';
 import { useStore } from 'zustand';
-import { userStore } from '../../store';
+import { userStore } from '@/store';
 import NavUserArea from './navUserArea';
 
 const navsInfo = [

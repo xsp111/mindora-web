@@ -35,7 +35,7 @@ interface ConversationStore {
 
 export const NEW_CONVERSATION = '0';
 
-const msgStore = create<ConversationStore>((_set, _get) => ({
+const conversationStore = create<ConversationStore>((_set, _get) => ({
 	conversationIdxList: [],
 	// new schema
 	meta: {
@@ -249,4 +249,4 @@ const msgStore = create<ConversationStore>((_set, _get) => ({
 	},
 }));
 
-export { msgStore };
+export { conversationStore };

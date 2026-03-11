@@ -1,13 +1,10 @@
 import Sider from '@/components/pc/sider';
-import ConversationContent from '@/components/pc/msgContent';
+import ConversationContent from '@/components/pc/cvsContent';
 import './index.css';
 import useCheckLoginState from '@/hooks/useCheckLoginState';
 
 export default function CvsCenter() {
-	const { fallback } = useCheckLoginState();
-	if (fallback) {
-		return fallback;
-	}
+	useCheckLoginState();
 
 	return (
 		<div className='w-full h-full flex'>

@@ -1,18 +1,22 @@
 import { useStore } from 'zustand';
-import { msgStore, userStore } from '@/store';
+import { conversationStore, userStore } from '@/store';
 import { Popover } from 'antd';
 import DefaultButton from '../common/defaultButton';
-import { useContext } from 'react';
-import { messageContext } from './rootLayout';
 import logoutIcon from '@/assets/logout.svg';
-import { NEW_CONVERSATION } from '@/store/msgStore';
+import { NEW_CONVERSATION } from '@/store/conversation.store';
+import { useNavigate } from 'react-router';
+import useSingleMessageApiCall from '@/hooks/useSingleMessageApiCall';
 
 export default function NavUserArea() {
 	const { user, logout } = useStore(userStore);
-	const { getConversation, setConversationIdxList } = useStore(msgStore);
-	const messageApi = useContext(messageContext);
+	const { getConversation, setConversationIdxList } =
+		useStore(conversationStore);
+	const messageApi = useSingleMessageApiCall();
+	const navigate = useNavigate();
 	async function handleLogout() {
-		const res = await logout();
+		const res = await logout(() => {
+			navigate('/');
+		});
 		if (res.success) {
 			messageApi.success(res.msg);
 			getConversation(NEW_CONVERSATION);

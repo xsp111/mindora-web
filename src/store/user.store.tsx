@@ -4,7 +4,6 @@ import type {
 	LoginOrSignupInfo,
 	EditUserInfo,
 	UserApiRes,
-	authGlobal,
 } from '../const/user';
 import { userService } from '../service';
 import authController from '../service/auth';
@@ -26,7 +25,7 @@ interface UserState {
 		cb: (res: 'success' | 'error' | 'timeout') => void,
 	) => void;
 	signup: (loginOrSignupInfo: LoginOrSignupInfo) => Promise<UserApiRes>;
-	logout: () => Promise<UserApiRes>;
+	logout: (cb: () => void) => Promise<UserApiRes>;
 	editUserInfo: (editInfo: EditUserInfo) => Promise<UserApiRes>;
 }
 
@@ -60,6 +59,7 @@ const userStore = create<UserState>((_set, _get) => ({
 		const res = await userService.login(loginInfo);
 		if (res.success) {
 			authController.accessToken = res.data?.accessToken;
+			authController.isLogin = true;
 			_set({
 				user: res.data,
 				isLogin: true,
@@ -106,6 +106,7 @@ const userStore = create<UserState>((_set, _get) => ({
 			});
 			cb('success');
 			authController.accessToken = data.accessToken;
+			authController.isLogin = true;
 			clear();
 		};
 		sse.addEventListener('error', onError);
@@ -114,6 +115,9 @@ const userStore = create<UserState>((_set, _get) => ({
 	signup: async (signupInfo) => {
 		const res = await userService.signup(signupInfo);
 		if (res.success) {
+			res.data?.accessToken &&
+				(authController.accessToken = res.data.accessToken);
+			authController.isLogin = true;
 			_set({
 				user: res.data,
 				isLogin: true,
@@ -121,10 +125,11 @@ const userStore = create<UserState>((_set, _get) => ({
 		}
 		return res;
 	},
-	logout: async () => {
+	logout: async (cb) => {
 		const res = await userService.logout();
 		if (res.success) {
 			authController.accessToken = undefined;
+			authController.isLogin = false;
 			_set({
 				user: {
 					id: '',
@@ -134,6 +139,7 @@ const userStore = create<UserState>((_set, _get) => ({
 				isLogin: false,
 				loginOrSignupModalVisible: true,
 			});
+			cb();
 		}
 		return res;
 	},

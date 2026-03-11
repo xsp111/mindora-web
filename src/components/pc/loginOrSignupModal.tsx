@@ -6,13 +6,13 @@ import { Skeleton } from 'antd';
 import ProfileChild from '@/assets/profile-child.svg';
 import ProfileMan from '@/assets/profile-man.svg';
 import ProfileWoman from '@/assets/profile-woman.svg';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { useStore } from 'zustand';
 import { userStore } from '@/store';
 import type { LoginOrSignupInfo } from '@/const/user';
-import { messageContext } from './rootLayout';
 import { loginValidate, signupValidate, emailLoginValidate } from '../../utils';
 import DefaultForm, { DefaultInput } from '../common/defaultForm';
+import useSingleMessageApiCall from '@/hooks/useSingleMessageApiCall';
 
 const profileImgList = [ProfileChild, ProfileMan, ProfileWoman];
 enum ModalType {
@@ -75,7 +75,7 @@ function LoginForm(props: {
 	closeModal: () => void;
 }) {
 	const { setModalType, closeModal } = props;
-	const messageApi = useContext(messageContext);
+	const messageApi = useSingleMessageApiCall();
 	const { login } = useStore(userStore);
 	const [loginInfo, setLoginInfo] = useState<LoginOrSignupInfo>({
 		name: '',
@@ -171,7 +171,7 @@ function EmailLoginForm(props: {
 	closeModal: () => void;
 }) {
 	const { setModalType, closeModal } = props;
-	const messageApi = useContext(messageContext);
+	const messageApi = useSingleMessageApiCall();
 	const { sendVerifyEmail, wait4EmailVerify } = useStore(userStore);
 	const [email, setEmail] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
@@ -270,7 +270,7 @@ function SignupForm(props: {
 	closeModal: () => void;
 }) {
 	const { setModalType, closeModal } = props;
-	const messageApi = useContext(messageContext);
+	const messageApi = useSingleMessageApiCall();
 	const { signup } = useStore(userStore);
 	const [signupInfo, setSignupInfo] = useState<LoginOrSignupInfo>({
 		name: '',
