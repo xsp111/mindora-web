@@ -62,7 +62,8 @@ const conversationStore = create<ConversationStore>((_set, _get) => ({
 			};
 		}
 		_set({
-			conversationIdxList: conversationIdxList || [],
+			conversationIdxList:
+				(conversationIdxList as ConversationIdxList) || [],
 		});
 		return {
 			success,
