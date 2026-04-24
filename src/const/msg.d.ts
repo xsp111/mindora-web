@@ -24,10 +24,30 @@ type ConversationIdxList = {
 	label: ConversationMeta['label'];
 }[];
 
+type characteristic = {
+	profileSummary: string;
+	overview: string;
+	emotionTrend7d: Array<{ date: 'YYYY-MM-DD'; valence: number }>;
+	dimensions: {
+		valence: number;
+		arousal: number;
+		stress: number;
+		cognitive_distortion: number;
+		regulation: number;
+		risk: number;
+	};
+	suggestions: Array<string>;
+	insights: {
+		summary: string;
+		keywords: Array<string>;
+	};
+};
+
 export type {
 	Message,
 	ChatApiRes,
 	Conversation,
 	ConversationMeta,
 	ConversationIdxList,
+	characteristic,
 };

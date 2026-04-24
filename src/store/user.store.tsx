@@ -5,13 +5,34 @@ import type {
 	EditUserInfo,
 	UserApiRes,
 } from '../const/user';
-import { userService } from '../service';
+import { chatService, userService } from '../service';
 import authController from '../service/auth';
 import { apiPrefix, type ApiFetchRes } from '../service/apiFetch';
+import type { characteristic } from '@/const/msg';
 
 interface UserState {
 	user: User;
 	isLogin: boolean;
+
+	characteristic: {
+		profileSummary: string;
+		overview: string;
+		emotionTrend7d: Array<{ date: 'YYYY-MM-DD'; valence: number }>;
+		dimensions: {
+			valence: number;
+			arousal: number;
+			stress: number;
+			cognitive_distortion: number;
+			regulation: number;
+			risk: number;
+		};
+		suggestions: Array<string>;
+		insights: {
+			summary: string;
+			keywords: Array<string>;
+		};
+	};
+
 	loginOrSignupModalVisible: boolean;
 	setLoginOrSignupModalVisible: (visible: boolean) => void;
 	setUser: (user: User) => void;
@@ -27,6 +48,7 @@ interface UserState {
 	signup: (loginOrSignupInfo: LoginOrSignupInfo) => Promise<UserApiRes>;
 	logout: (cb: () => void) => Promise<UserApiRes>;
 	editUserInfo: (editInfo: EditUserInfo) => Promise<UserApiRes>;
+	getCharacteristic: () => Promise<void>;
 }
 
 const userStore = create<UserState>((_set, _get) => ({
@@ -34,6 +56,24 @@ const userStore = create<UserState>((_set, _get) => ({
 		id: '',
 		name: '',
 		avatar: '',
+	},
+	characteristic: {
+		profileSummary: '',
+		overview: '',
+		emotionTrend7d: [],
+		dimensions: {
+			valence: -1,
+			arousal: -1,
+			stress: -1,
+			cognitive_distortion: -1,
+			regulation: -1,
+			risk: -1,
+		},
+		suggestions: [],
+		insights: {
+			summary: '',
+			keywords: [],
+		},
 	},
 	isLogin: false,
 	loginOrSignupModalVisible: false,
@@ -151,6 +191,15 @@ const userStore = create<UserState>((_set, _get) => ({
 			});
 		}
 		return res;
+	},
+	getCharacteristic: async () => {
+		const { success, data: characteristic } =
+			await chatService.getCharacteristic();
+		if (success) {
+			_set({
+				characteristic: characteristic as characteristic,
+			});
+		}
 	},
 }));
 

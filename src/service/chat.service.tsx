@@ -1,4 +1,5 @@
 import type {
+	characteristic,
 	ChatApiRes,
 	Conversation,
 	ConversationIdxList,
@@ -6,10 +7,16 @@ import type {
 import apiFetch from './apiFetch';
 import authController from './auth';
 
-async function chat(msg: Conversation) {
+async function chat({
+	conversationId,
+	content,
+}: {
+	conversationId: string;
+	content: string;
+}) {
 	return apiFetch('/auth/chat', {
 		method: 'POST',
-		body: msg,
+		body: { conversationId, content },
 		customHeaders: {
 			Authorization: `Bearer ${authController.accessToken}`,
 		},
@@ -67,6 +74,16 @@ async function getConversationList() {
 	);
 }
 
+async function getCharacteristic() {
+	return authController.afterAuthReady<ChatApiRes<characteristic>>(
+		apiFetch,
+		'/auth/chat/profile',
+		{
+			method: 'GET',
+		},
+	);
+}
+
 export {
 	chat,
 	createChat,
@@ -74,4 +91,5 @@ export {
 	getConversationList,
 	deleteConversation,
 	changeConversationLabel,
+	getCharacteristic,
 };
