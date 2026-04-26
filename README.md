@@ -2,7 +2,7 @@
 
 ## env requirements
 
-下载 node 环境：https://nodejs.org/zh-cn/download，版本>= 22.0.0
+安装 node 环境（版本>= 22.0.0）：https://nodejs.org/zh-cn/download
 
 ## dev
 
