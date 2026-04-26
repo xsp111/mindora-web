@@ -15,8 +15,9 @@ import DefaultButton from '../common/defaultButton';
 import TextType from '../common/textType';
 import XMarkdown from '@ant-design/x-markdown';
 import type { ConversationMeta } from '@/const/msg';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import useSingleMessageApiCall from '@/hooks/useSingleMessageApiCall';
+import { NEW_CONVERSATION } from '@/store/conversation.store';
 
 function useScrollToBottom(generating: ConversationMeta['generating']) {
 	const endRef = useRef<HTMLDivElement>(null);
@@ -94,6 +95,7 @@ export default function ConversationContent() {
 	);
 
 	const { conversationId } = useParams();
+	const navigator = useNavigate();
 	const messageApi = useSingleMessageApiCall();
 
 	useEffect(() => {
@@ -101,6 +103,7 @@ export default function ConversationContent() {
 		getConversation(searchId).then((res) => {
 			if (!res.success) {
 				messageApi.error(res.msg);
+				navigator(`/chat/${NEW_CONVERSATION}`);
 				return;
 			}
 		});
@@ -138,6 +141,8 @@ function Input() {
 		(state) => state.createConversation,
 	);
 	const [input, setInput] = useState<string>('');
+	const navigate = useNavigate();
+
 	const inputRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const messageApi = useSingleMessageApiCall();
@@ -171,11 +176,16 @@ function Input() {
 			inputRef.current.innerText = '';
 		}
 		if (id === '0') {
-			const { success, msg } = await createConversation();
+			const {
+				success,
+				msg,
+				data: newConversationId,
+			} = await createConversation();
 			if (!success) {
 				messageApi.error(msg);
 				return;
 			}
+			navigate(`/chat/${newConversationId}`);
 		}
 		await sendMsg({
 			role: 'user',

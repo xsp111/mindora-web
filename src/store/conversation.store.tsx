@@ -23,7 +23,7 @@ interface ConversationStore {
 	deleteConversation: (
 		id: ConversationMeta['id'],
 	) => Promise<
-		ApiFetchRes<ConversationIdxList> & { joinNew?: boolean | undefined }
+		ApiFetchRes<ConversationIdxList> & { joinNew?: string | undefined }
 	>;
 	changeConversationLabel: (
 		id: ConversationMeta['id'],
@@ -104,7 +104,7 @@ const conversationStore = create<ConversationStore>((_set, _get) => ({
 			console.error(msg);
 			return {
 				success: false,
-				msg: '未找到该对话',
+				msg: msg,
 			};
 		}
 		_set({
@@ -136,7 +136,10 @@ const conversationStore = create<ConversationStore>((_set, _get) => ({
 		return {
 			success: true,
 			msg: '删除成功',
-			joinNew: id === deleteId,
+			joinNew:
+				id === deleteId
+					? newMsgIdxList[0]?.idx || NEW_CONVERSATION
+					: undefined,
 		};
 	},
 	changeConversationLabel: async (
@@ -180,8 +183,6 @@ const conversationStore = create<ConversationStore>((_set, _get) => ({
 				msg: msg,
 			};
 		}
-		// 新会话修改 url
-		history.pushState({}, '', `/chat/${newConversation?.meta?.id}`);
 		_set({
 			meta: {
 				id: newConversation?.meta?.id || '',
@@ -200,6 +201,7 @@ const conversationStore = create<ConversationStore>((_set, _get) => ({
 		return {
 			success: true,
 			msg: '',
+			data: newConversation?.meta.id,
 		};
 	},
 	sendMsg: async (newMsg: Message) => {
@@ -222,7 +224,10 @@ const conversationStore = create<ConversationStore>((_set, _get) => ({
 		_set({
 			...preConversation,
 		});
-		const reader = await chatService.chat(preConversation);
+		const reader = await chatService.chat({
+			conversationId: meta.id,
+			content: newMsg.content,
+		});
 		let answerContent = '';
 		while (true) {
 			const { done, value } = await (

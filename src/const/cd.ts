@@ -2,7 +2,7 @@ import emo from '../assets/intro-emo.svg';
 import health from '../assets/intro.health.svg';
 import guide from '../assets/intro-guide.svg';
 
-const CD: Record<string, string[] | string | Record<string, string>[]> = {
+const CD = {
 	homePageTypeText: [
 		'与 Mindora 对话',
 		'心理支持，认知引导',

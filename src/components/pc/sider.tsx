@@ -83,7 +83,7 @@ function SiderSubItem({
 	async function handleOk() {
 		setLoading(true);
 		let res: ApiFetchRes<ConversationIdxList> & {
-			joinNew?: boolean | undefined;
+			joinNew?: string | undefined;
 		} = {
 			success: false,
 			msg: '',
@@ -107,8 +107,9 @@ function SiderSubItem({
 			messageApi.error(msg);
 		}
 		setLoading(false);
+		console.log(joinNew);
 		if (joinNew) {
-			gotoConversation(NEW_CONVERSATION);
+			navigator(`/chat/${joinNew}`);
 		}
 		setModifyModalInfo('unvisible');
 	}

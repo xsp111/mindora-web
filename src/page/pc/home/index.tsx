@@ -19,7 +19,7 @@ export default function HomePage() {
 									{CD.homePageSubTitle as string}
 								</span>
 								<TextType
-									text={CD.homePageTypeText as string}
+									text={CD.homePageTypeText}
 									className='absolute top-0 mt-1 font-bold text-4xl text-[#C84444]'
 								/>
 							</div>
