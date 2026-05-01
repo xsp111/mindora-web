@@ -5,6 +5,7 @@ import type { User } from '@/const/user';
 import UserSettings from './userSettings';
 import MultiDimensionAnalysis from './multiDimensionAnalysis';
 import { Line } from '@ant-design/plots';
+import { Empty } from 'antd';
 
 export default function AnalysicDisplay() {
 	const user = useStore(userStore, (state) => state.user);
@@ -54,7 +55,7 @@ function TrendChart() {
 		userStore,
 		(state) => state.characteristic.emotionTrend7d,
 	);
-	return (
+	return data.length > 0 ? (
 		<Line
 			width={900}
 			height={300}
@@ -80,7 +81,7 @@ function TrendChart() {
 						const isDepressed = items[0].value <= 0;
 						return (
 							<div
-								className={`${isDepressed ? 'text-blue-300' : 'text-green-500'} font-bold`}
+								className={`${isDepressed ? 'text-blue-300' : 'text-green-700'} font-bold`}
 							>
 								{isDepressed
 									? '当日情绪较为失落'
@@ -94,5 +95,9 @@ function TrendChart() {
 				lineWidth: 2,
 			}}
 		/>
+	) : (
+		<div className='h-full flex items-center justify-center'>
+			<Empty description='暂无数据' />
+		</div>
 	);
 }

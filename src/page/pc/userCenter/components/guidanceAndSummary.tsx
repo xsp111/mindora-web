@@ -4,6 +4,8 @@ import { useStore } from 'zustand';
 import { WordCloud } from '@ant-design/plots';
 import CD from '@/const/cd';
 import { Popover } from 'antd';
+import chat from '@/assets/chat.svg';
+import TextType from '@/components/common/textType';
 
 export default function GuidanceAndTips() {
 	return (
@@ -91,20 +93,34 @@ function Guidance() {
 	);
 	return (
 		<Card className='flex flex-col gap-8 p-6'>
-			<div className='text-2xl font-bold text-[#C84444] text-center'>
-				尝试做做这些
-			</div>
-			<div className='text-gray-700 flex flex-col gap-4'>
-				{suggestions.map((suggestion) => (
-					<div
-						key={suggestion}
-						className='w-full rounded-lg p-1 flex items-center gap-4 border border-transparent hover:border-[#C84444]'
-					>
-						<div className='w-2 h-2 rounded-full bg-[#C84444]'></div>
-						<span className='flex-1 text-sm'>{suggestion}</span>
+			{suggestions.length > 0 ? (
+				<>
+					<div className='text-2xl font-bold text-[#C84444] text-center'>
+						尝试做做这些
 					</div>
-				))}
-			</div>
+					<div className='text-gray-700 flex flex-col gap-4'>
+						{suggestions.map((suggestion) => (
+							<div
+								key={suggestion}
+								className='w-full rounded-lg p-1 flex items-center gap-4 border border-transparent hover:border-[#C84444]'
+							>
+								<div className='w-2 h-2 rounded-full bg-[#C84444]'></div>
+								<span className='flex-1 text-sm'>
+									{suggestion}
+								</span>
+							</div>
+						))}
+					</div>
+				</>
+			) : (
+				<div className='h-full flex flex-col items-center justify-center'>
+					<img src={chat} alt='' />
+					<TextType
+						text={['与 Mindora 互动', '获取更多日常小建议']}
+						className='text-lg font-bold text-[#C84444] text-center'
+					/>
+				</div>
+			)}
 		</Card>
 	);
 }

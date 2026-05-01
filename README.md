@@ -23,4 +23,4 @@ pnpm run dev:pc
 
 ## relative
 
--[mindora backend](https://github.com/xsp111/mindora-server-node)
+- [mindora backend](https://github.com/xsp111/mindora-server-node)
