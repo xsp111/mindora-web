@@ -56,6 +56,7 @@ const userStore = create<UserState>((_set, _get) => ({
 		id: '',
 		name: '',
 		avatar: '',
+		email: '',
 	},
 	characteristic: {
 		profileSummary: '',

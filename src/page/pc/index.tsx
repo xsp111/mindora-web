@@ -8,6 +8,7 @@ import { useStore } from 'zustand';
 import { useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { Carousel, Empty } from 'antd';
 
 gsap.registerPlugin(useGSAP);
 
@@ -24,7 +25,14 @@ export default function PcApp() {
 				<Route index element={<HomePage />} />
 				<Route path='/chat/:conversationId' element={<CvsCenter />} />
 				<Route path='/user' element={<UserCenter />} />
-				<Route path='*' element={<div>404 Not Found</div>} />
+				<Route
+					path='*'
+					element={
+						<div className='w-full h-full flex items-center justify-center'>
+							<Empty description='404 Not Found' />
+						</div>
+					}
+				/>
 			</Route>
 		</Routes>
 	);

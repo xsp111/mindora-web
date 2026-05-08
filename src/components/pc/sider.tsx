@@ -107,7 +107,6 @@ function SiderSubItem({
 			messageApi.error(msg);
 		}
 		setLoading(false);
-		console.log(joinNew);
 		if (joinNew) {
 			navigator(`/chat/${joinNew}`);
 		}
@@ -123,7 +122,7 @@ function SiderSubItem({
 					}
 					navigator(`/chat/${id}`);
 				}}
-				className={`w-full py-1 px-12 flex justify-between items-center gap-4 hover:bg-gray-200  rounded-sm ${
+				className={`w-full py-1 px-12 flex justify-between items-center gap-4 hover:bg-gray-200 transition-all duration-300 rounded-sm ${
 					generating
 						? 'hover:cursor-not-allowed'
 						: 'hover:cursor-pointer'
@@ -236,10 +235,10 @@ export default function Sider() {
 		(state) => state.getConversationIdxList,
 	);
 
+	console.log('render Sider');
+
 	useEffect(() => {
-		if (!user) {
-			return;
-		}
+		console.log('render effect');
 		getConversationIdxList();
 	}, [user]);
 

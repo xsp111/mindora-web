@@ -79,7 +79,7 @@ export default function RootLayout() {
 								{navsInfo.map((nav) => (
 									<NavItem key={nav.href} {...nav} />
 								))}
-								<div className='w-24 pb-0.5'>
+								<div className='pb-0.5'>
 									{isLogin ? (
 										<NavUserArea />
 									) : (

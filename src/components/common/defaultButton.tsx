@@ -15,10 +15,10 @@ export default function DefaultButton(props: DefaultButtonProp) {
 		<button
 			className={twMerge(
 				`flex justify-center items-center px-4 py-1.5 rounded-md border text-sm font-bold bg-[#C84444] text-white   transition-all duration-200`,
-				className,
 				loading
 					? 'bg-gray-100 text-gray-700 border-none hover:cursor-not-allowed'
 					: 'hover:cursor-pointer hover:bg-[#ff9b9b]',
+				className,
 			)}
 			onClick={onClick}
 			disabled={loading}

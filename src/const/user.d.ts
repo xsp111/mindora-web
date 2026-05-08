@@ -4,6 +4,7 @@ type User = {
 	id: string;
 	name: string;
 	avatar: string;
+	email?: string;
 	accessToken?: string;
 };
 

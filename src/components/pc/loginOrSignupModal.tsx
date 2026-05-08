@@ -77,11 +77,13 @@ function LoginForm(props: {
 	const { setModalType, closeModal } = props;
 	const messageApi = useSingleMessageApiCall();
 	const { login } = useStore(userStore);
-	const [loginInfo, setLoginInfo] = useState<LoginOrSignupInfo>({
+	const defaultLoginInfo = {
 		name: '',
 		password: '',
 		remember: false,
-	});
+	};
+	const [loginInfo, setLoginInfo] =
+		useState<LoginOrSignupInfo>(defaultLoginInfo);
 
 	async function handleLogin() {
 		const validateRes = loginValidate(loginInfo);
@@ -92,6 +94,7 @@ function LoginForm(props: {
 		const res = await login(loginInfo);
 		if (res.success) {
 			closeModal();
+			setLoginInfo(defaultLoginInfo);
 			messageApi.success('登录成功');
 		} else {
 			messageApi.error(res.msg);

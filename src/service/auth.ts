@@ -27,9 +27,8 @@ const authController: AuthController = {
 		});
 	}),
 	afterAuthReady: async (callback, ...args) => {
-		const res = await authController.auth;
-		const { success } = res;
-		if (!success) {
+		await authController.auth;
+		if (!authController.isLogin) {
 			return {
 				success: false,
 				msg: '未登录',

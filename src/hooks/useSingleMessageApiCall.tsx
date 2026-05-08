@@ -19,12 +19,6 @@ export default function useSingleMessageApiCall() {
 		type: 'error' | 'warning' | 'success';
 		msg: string;
 	}) {
-		console.log(
-			'message call',
-			msg,
-			'hasOtherMessageShowNow',
-			hasOtherMessageShowNow,
-		);
 		if (!hasOtherMessageShowNow) {
 			hasOtherMessageShowNow = true;
 			messageApi.open({
@@ -33,7 +27,6 @@ export default function useSingleMessageApiCall() {
 				duration: showDuration,
 			});
 			const timer = setTimeout(() => {
-				console.log('time exec');
 				hasOtherMessageShowNow = false;
 				if (messageQueue.length > 0) {
 					const next = messageQueue.shift() as {
