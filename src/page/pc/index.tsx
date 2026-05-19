@@ -1,14 +1,15 @@
-import { Route, Routes } from 'react-router';
+import { Route, Routes, useNavigate } from 'react-router';
 import HomePage from './home';
 import RootLayout from '@/components/pc/rootLayout';
 import CvsCenter from './cvsCenter';
 import UserCenter from './userCenter';
 import { userStore } from '@/store';
 import { useStore } from 'zustand';
-import { useEffect } from 'react';
+import { use, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { Carousel, Empty } from 'antd';
+import { Empty } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 
 gsap.registerPlugin(useGSAP);
 
@@ -25,15 +26,29 @@ export default function PcApp() {
 				<Route index element={<HomePage />} />
 				<Route path='/chat/:conversationId' element={<CvsCenter />} />
 				<Route path='/user' element={<UserCenter />} />
-				<Route
-					path='*'
-					element={
-						<div className='w-full h-full flex items-center justify-center'>
-							<Empty description='404 Not Found' />
-						</div>
-					}
-				/>
+				<Route path='*' element={<JumpToDocSite />} />
 			</Route>
 		</Routes>
+	);
+}
+
+function JumpToDocSite() {
+	const navigate = useNavigate();
+	const ref = useRef<HTMLAnchorElement>(null);
+
+	useEffect(() => {
+		navigate('/');
+		ref.current?.click();
+	}, []);
+
+	return (
+		<div className='w-full h-full flex items-center justify-center text-[40px]'>
+			<a
+				ref={ref}
+				href=' https://xsp111.github.io/mindora-doc/'
+				target='_blank'
+			></a>
+			<LoadingOutlined />
+		</div>
 	);
 }
