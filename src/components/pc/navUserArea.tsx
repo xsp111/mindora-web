@@ -54,7 +54,7 @@ export default function NavUserArea() {
 					</div>
 				}
 			>
-				<img src={user.avatar} width={32} />
+				<img src={user.avatar} width={32} className='rounded-full' />
 			</Popover>
 		</div>
 	);

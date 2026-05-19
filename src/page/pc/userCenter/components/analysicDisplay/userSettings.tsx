@@ -15,6 +15,7 @@ import {
 	CloseOutlined,
 } from '@ant-design/icons';
 import { getCroppedImg } from '@/utils';
+import useSingleMessageApiCall from '@/hooks/useSingleMessageApiCall';
 
 export default function UserSettings({
 	user,
@@ -27,7 +28,12 @@ export default function UserSettings({
 	return (
 		<Card className={twMerge('flex-1', className)}>
 			<div className='h-full flex flex-col items-center justify-center gap-4'>
-				<img src={user?.avatar || ''} alt='avatar' width={96} />
+				<img
+					src={user?.avatar || ''}
+					alt='avatar'
+					width={144}
+					className='rounded-full'
+				/>
 				<span className='text-lg font-bold text-gray-700'>
 					{user?.name || '用户昵称'}
 				</span>
@@ -46,13 +52,21 @@ export default function UserSettings({
 function UserSettingsModal(props: ModalProps) {
 	const { open, onCancel } = props;
 	const user = useStore(userStore, (state) => state.user);
+	const editUserInfo = useStore(userStore, (state) => state.editUserInfo);
+	const messageApi = useSingleMessageApiCall();
 	const [form, setForm] = useState({
-		nickname: '',
+		name: '',
 		email: '',
 	});
 	const [file, setFile] = useState<File | undefined>(undefined);
 	const [cropOpen, setCropOpen] = useState(false);
 	const fileSelectorRef = useRef<HTMLInputElement>(null);
+
+	function close() {
+		//@ts-ignore
+		onCancel();
+		setFile(undefined);
+	}
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setForm({
@@ -62,11 +76,19 @@ function UserSettingsModal(props: ModalProps) {
 	}
 
 	async function handleSave() {
-		const formData = new FormData();
-		formData.append('nickname', form.nickname);
-		formData.append('email', form.email);
-		if (file) {
-			formData.append('avatar', file);
+		try {
+			const formData = new FormData();
+			formData.append('name', form.name);
+			formData.append('email', form.email);
+			if (file) {
+				formData.append('avatar', file);
+			}
+			await editUserInfo(formData);
+			messageApi.success('修改成功');
+			close();
+		} catch (error) {
+			messageApi.error('修改失败');
+			console.error(error);
 		}
 	}
 
@@ -140,7 +162,7 @@ function UserSettingsModal(props: ModalProps) {
 							labelClassName: 'text-[14px]',
 							items: [
 								{
-									name: 'nickname',
+									name: 'name',
 									label: '称呼',
 									placeholder: user?.name || '',
 									onChange: handleChange,
@@ -159,9 +181,7 @@ function UserSettingsModal(props: ModalProps) {
 					<DefaultButton
 						className='bg-white text-black font-normal hover:bg-gray-200 border-gray-300'
 						onClick={() => {
-							setFile(undefined);
-							//@ts-ignore
-							onCancel();
+							close();
 						}}
 					>
 						取消

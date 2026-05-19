@@ -24,7 +24,7 @@ type ConversationIdxList = {
 	label: ConversationMeta['label'];
 }[];
 
-type characteristic = {
+type Characteristic = {
 	profileSummary: string;
 	overview: string;
 	emotionTrend7d: Array<{ date: 'YYYY-MM-DD'; valence: number }>;
@@ -43,11 +43,31 @@ type characteristic = {
 	};
 };
 
+type degree = -1 | 0 | 1;
+type UserSettings = {
+	reply: {
+		style: number;
+		gentle: degree;
+		passion: degree;
+		titleAndList: degree;
+		emoji: degree;
+		custom: string;
+	};
+	privacy: {
+		nickname: string;
+		career: string;
+		detail: string;
+		useMemory: boolean;
+		reset: 0 | 1 | 7 | 30;
+	};
+};
+
 export type {
 	Message,
 	ChatApiRes,
 	Conversation,
 	ConversationMeta,
 	ConversationIdxList,
-	characteristic,
+	Characteristic,
+	UserSettings,
 };

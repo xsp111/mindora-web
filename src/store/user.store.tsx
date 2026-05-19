@@ -1,14 +1,9 @@
 import { create } from 'zustand';
-import type {
-	User,
-	LoginOrSignupInfo,
-	EditUserInfo,
-	UserApiRes,
-} from '../const/user';
+import type { User, LoginOrSignupInfo, UserApiRes } from '../const/user';
 import { chatService, userService } from '../service';
 import authController from '../service/auth';
 import { apiPrefix, type ApiFetchRes } from '../service/apiFetch';
-import type { characteristic } from '@/const/msg';
+import type { Characteristic } from '@/const/msg';
 
 interface UserState {
 	user: User;
@@ -47,7 +42,7 @@ interface UserState {
 	) => void;
 	signup: (loginOrSignupInfo: LoginOrSignupInfo) => Promise<UserApiRes>;
 	logout: (cb: () => void) => Promise<UserApiRes>;
-	editUserInfo: (editInfo: EditUserInfo) => Promise<UserApiRes>;
+	editUserInfo: (editInfo: FormData) => void;
 	getCharacteristic: () => Promise<void>;
 }
 
@@ -184,23 +179,25 @@ const userStore = create<UserState>((_set, _get) => ({
 		}
 		return res;
 	},
-	editUserInfo: async (editInfo) => {
-		const res = await userService.editUserInfo(editInfo);
-		if (res.success) {
-			_set({
-				user: res.data,
-			});
-		}
-		return res;
-	},
+
 	getCharacteristic: async () => {
 		const { success, data: characteristic } =
 			await chatService.getCharacteristic();
 		if (success) {
 			_set({
-				characteristic: characteristic as characteristic,
+				characteristic: characteristic as Characteristic,
 			});
 		}
+	},
+	editUserInfo: async (editInfo: FormData) => {
+		const res = await userService.editUserInfo(editInfo);
+		const { user } = _get();
+		_set({
+			user: {
+				...user,
+				...res.data,
+			},
+		});
 	},
 }));
 

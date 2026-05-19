@@ -17,11 +17,6 @@ type LoginOrSignupInfo = {
 
 type UserApiRes<T = {}> = ApiFetchRes<User & T>;
 
-type EditUserInfo = {
-	name?: string;
-	avatar?: string;
-};
-
 export type {
 	authGlobal,
 	User,

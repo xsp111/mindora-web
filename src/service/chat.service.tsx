@@ -1,8 +1,9 @@
 import type {
-	characteristic,
+	Characteristic,
 	ChatApiRes,
 	Conversation,
 	ConversationIdxList,
+	UserSettings,
 } from '../const/msg';
 import apiFetch from './apiFetch';
 import authController from './auth';
@@ -75,13 +76,36 @@ async function getConversationList() {
 }
 
 async function getCharacteristic() {
-	return authController.afterAuthReady<ChatApiRes<characteristic>>(
+	return authController.afterAuthReady<ChatApiRes<Characteristic>>(
 		apiFetch,
 		'/auth/chat/profile',
 		{
 			method: 'GET',
 		},
 	);
+}
+
+async function getSettings(settingsPart: keyof UserSettings) {
+	return authController.afterAuthReady<
+		ChatApiRes<UserSettings[keyof UserSettings]>
+	>(apiFetch, `/auth/chat/settings?part=${settingsPart}`, {
+		method: 'GET',
+	});
+}
+
+async function setSettings({
+	settingsPart,
+	settings,
+}: {
+	settingsPart: keyof UserSettings;
+	settings: UserSettings[keyof UserSettings];
+}) {
+	return authController.afterAuthReady<
+		ChatApiRes<UserSettings[typeof settingsPart]>
+	>(apiFetch, `/auth/chat/update-settings?part=${settingsPart}`, {
+		method: 'POST',
+		body: settings,
+	});
 }
 
 export {
@@ -92,4 +116,6 @@ export {
 	deleteConversation,
 	changeConversationLabel,
 	getCharacteristic,
+	getSettings,
+	setSettings,
 };

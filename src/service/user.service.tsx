@@ -1,9 +1,12 @@
+import type { ChatApiRes } from '@/const/msg';
 import type {
 	EditUserInfo,
 	LoginOrSignupInfo,
+	User,
 	UserApiRes,
 } from '../const/user';
 import apiFetch, { type ApiFetchRes } from './apiFetch';
+import authController from './auth';
 
 async function login(
 	loginOrSignupInfo: LoginOrSignupInfo | {},
@@ -46,11 +49,15 @@ async function logout(): Promise<UserApiRes> {
 	});
 }
 
-async function editUserInfo(editInfo: EditUserInfo): Promise<UserApiRes> {
-	return apiFetch<UserApiRes>('/api/user/edit', {
-		method: 'POST',
-		body: editInfo,
-	});
+async function editUserInfo(editInfo: FormData) {
+	return authController.afterAuthReady<UserApiRes>(
+		apiFetch,
+		'/auth/user/edit',
+		{
+			method: 'POST',
+			body: editInfo,
+		},
+	);
 }
 
 export { login, signup, editUserInfo, logout, sendVerifyEmail };

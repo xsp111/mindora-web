@@ -12,32 +12,38 @@ export default async function apiFetch(
 	endpoint: string,
 	options: apiFetchOptions<boolean>,
 ) {
-	const { method = 'GET', body, customHeaders, stream } = options;
-	if (body) {
-		const { password } = body || {};
-		if (password) {
-			body.password = await hash(password as string);
-		}
-	}
 	try {
+		const { method = 'GET', body, customHeaders, stream } = options;
+		if (body && body.hasOwnProperty('password')) {
+			// @ts-ignore
+			body.password = await hash(body.password);
+		}
+
+		const isFormData = body instanceof FormData;
+		const finalHeaders = isFormData
+			? {
+					...customHeaders,
+				}
+			: {
+					...customHeaders,
+					'Content-Type': 'application/json',
+				};
+		const finalBody = isFormData ? body : JSON.stringify(body);
+
 		const res = await fetch(apiPrefix + endpoint, {
 			method,
-			headers: {
-				'Content-Type': 'application/json',
-				...customHeaders,
-			},
+			headers: finalHeaders,
 			credentials: 'include',
-			body: body ? JSON.stringify(body) : undefined,
+			body: finalBody,
 		});
 		if (stream && res.body) {
 			return res.body.getReader();
 		}
 		return await res.json();
 	} catch (error) {
-		console.error(error);
 		return {
 			success: false,
-			msg: '请求失败，请检查网络',
+			msg: '请求失败，请检查您的网络',
 		};
 	}
 }
@@ -59,7 +65,7 @@ export const apiPrefix = `${import.meta.env.DEV ? 'http://localhost:3000' : ''}/
 
 type apiFetchOptions<S> = {
 	method?: string;
-	body?: Record<string, string | boolean | Object>;
+	body?: Record<string, string | boolean | Object> | FormData;
 	customHeaders?: Record<string, string>;
 	stream?: S;
 };

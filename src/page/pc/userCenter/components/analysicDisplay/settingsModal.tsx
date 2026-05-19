@@ -12,7 +12,10 @@ import {
 	type ModalStatusType,
 } from './const';
 import DefaultButton from '@/components/common/defaultButton';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { UserSettings } from '@/const/msg';
+import { chatService } from '@/service';
+import useSingleMessageApiCall from '@/hooks/useSingleMessageApiCall';
 
 const settingItems = [
 	{
@@ -90,7 +93,7 @@ export default function SettingsModal({
 }
 
 function SettingsForm() {
-	const [form, setForm] = useState<Record<string, number | string>>({
+	const [form, setForm] = useState<UserSettings['reply']>({
 		style: 0,
 		gentle: 0,
 		passion: 0,
@@ -98,6 +101,17 @@ function SettingsForm() {
 		emoji: 0,
 		custom: '',
 	});
+	const messageApi = useSingleMessageApiCall();
+
+	useEffect(() => {
+		chatService.getSettings('reply').then(({ success, data }) => {
+			if (success) {
+				setForm(data as UserSettings['reply']);
+				return;
+			}
+			messageApi.error('获取失败，请检查网络');
+		});
+	}, []);
 
 	function onFormChange(target: string, value: number | string) {
 		setForm({
@@ -106,9 +120,18 @@ function SettingsForm() {
 		});
 	}
 
-	function onSave() {
-		// TODO: 提交表单数据
-		console.log('form data:', form);
+	async function onSave() {
+		const res = await chatService.setSettings({
+			settingsPart: 'reply',
+			settings: form,
+		});
+		if (!res.success) {
+			messageApi.error('设置失败');
+			return;
+		}
+		const updatedForm = res.data as UserSettings['reply'];
+		setForm(updatedForm);
+		messageApi.success('设置成功');
 	}
 
 	return (
@@ -127,7 +150,7 @@ function SettingsForm() {
 					</div>
 					<Select
 						onSelect={(value) => onFormChange('style', value)}
-						defaultValue={0}
+						value={form.style || 0}
 						style={{ width: 100 }}
 						options={StyleItems}
 					/>
@@ -149,7 +172,11 @@ function SettingsForm() {
 								onSelect={(value) =>
 									onFormChange(item.id, value)
 								}
-								value={(form[item.id] as number) || 0}
+								value={
+									form[
+										item.id as keyof UserSettings['reply']
+									] || 0
+								}
 								style={{ width: 80 }}
 								optionRender={({ label, value }) => (
 									<Tooltip
@@ -198,26 +225,44 @@ function SettingsForm() {
 }
 
 function PrivacyForm() {
-	const [form, setForm] = useState<Record<string, number | string | boolean>>(
-		{
-			nickname: '',
-			career: '',
-			detail: '',
-			useMemory: true,
-			reset: 0,
-		},
-	);
+	const [form, setForm] = useState<UserSettings['privacy']>({
+		nickname: '',
+		career: '',
+		detail: '',
+		useMemory: true,
+		reset: 0,
+	});
+	const messageApi = useSingleMessageApiCall();
 
-	function onFormChange(target: string, value: number | string) {
+	useEffect(() => {
+		chatService.getSettings('privacy').then(({ success, data }) => {
+			if (success) {
+				setForm(data as UserSettings['privacy']);
+				return;
+			}
+			messageApi.error('获取失败，请检查网络');
+		});
+	}, []);
+
+	function onFormChange(target: string, value: number | string | boolean) {
 		setForm({
 			...form,
 			[target]: value,
 		});
 	}
 
-	function onSave() {
-		// TODO: 提交表单数据
-		console.log('form data:', form);
+	async function onSave() {
+		const res = await chatService.setSettings({
+			settingsPart: 'privacy',
+			settings: form,
+		});
+		if (!res.success) {
+			messageApi.error('设置失败');
+			return;
+		}
+		const updatedForm = res.data as UserSettings['privacy'];
+		setForm(updatedForm);
+		messageApi.success('设置成功');
 	}
 
 	return (
@@ -268,7 +313,12 @@ function PrivacyForm() {
 								让 Mindora 在不同会话中参考保存的记忆进行回复
 							</span>
 						</div>
-						<Switch />
+						<Switch
+							value={form.useMemory}
+							onChange={(value) =>
+								onFormChange('useMemory', value)
+							}
+						/>
 					</div>
 					<div className='flex items-center justify-between'>
 						<div className='flex flex-col'>
